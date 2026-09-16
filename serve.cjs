@@ -4,7 +4,7 @@ const path = require('node:path');
 const allowed = new Set(['index.html','life.js','life.css','experience.js','experience.css','assets/cover-landscape.png','assets/memory-scenes.png']);
 const mime = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png'};
 const port=Number(process.env.PORT || 4186);
-const host=process.env.HOST || '127.0.0.1';
+const host=process.env.HOST || '0.0.0.0';
 http.createServer((req,res)=>{
   const url=new URL(req.url,'http://localhost');
   const name=url.pathname==='/'?'index.html':url.pathname.slice(1);
