@@ -24,11 +24,10 @@
   --pro-tap: 44px;
 }
 
-/* ── 页面底色与留白 ───────────────────────────────── */
-body { background: var(--pro-canvas); }
+/* ── 页面底色与留白 ───────────────────────────────
+ * 桌面端页面背景沿用 codex 的湖景 backdrop（.app-backdrop 不再覆盖）。 */
 .phone { background: var(--pro-canvas); }
 .page-content { padding-inline: 20px; padding-bottom: 108px; }
-.app-backdrop { background: var(--pro-canvas); }
 
 /* ── 页面标题：原型为大号左对齐标题 + 右侧工具 ─────── */
 .page-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; }
@@ -53,11 +52,8 @@ body { background: var(--pro-canvas); }
   text-align: left;
 }
 
-/* ── 首页品牌栏 ───────────────────────────────────── */
-.app-header { padding-top: 10px; }
-.brand b { font-size: 34px; }
-.brand span { font-size: 15px; font-weight: 700; color: var(--pro-ink); }
-.brand small { font-size: 11px; color: var(--pro-sub); font-weight: 500; }
+/* ── 首页品牌栏 ───────────────────────────────────
+ * logo 完全沿用 codex 原样（字号 / 字重 / 字距都不覆盖）。 */
 .header-tools { gap: 4px; }
 .header-tools .icon-button { width: var(--pro-tap); height: var(--pro-tap); }
 .hello-line { display: none; }
@@ -469,6 +465,27 @@ body { background: var(--pro-canvas); }
 @media (min-width: 900px) {
   .phone { background: var(--pro-canvas); }
   .page-content { padding-inline: 20px; }
+}
+
+/* ── 页眉：不透明，滚动时不再透出下方内容 ──────────── */
+.phone .app-header { background: #fff; backdrop-filter: none; }
+
+/* ── 桌面预览壳：更接近手机的瘦长比例 ─────────────
+ * 面板 460×591（近方形）→ 420×629，上下留白收紧。
+ * 100dvh 里要扣掉 body 的 32px 顶距 + 24/18 的上下边距。 */
+@media (min-width: 1100px) {
+  body:not(.on-cover) .phone {
+    width: 420px;
+    margin: 24px calc(50% - 460px) 18px auto;
+    height: calc(100dvh - 74px);
+  }
+
+  /* 滚动后的紧凑页眉：缩得更多，占的版面更少 */
+  .phone .app-header.is-compact { padding-top: 12px; padding-bottom: 6px; box-shadow: 0 4px 10px rgba(36, 76, 106, .06); }
+  .phone .app-header.is-compact .brand > b { font-size: 24px; letter-spacing: -3px; }
+  .phone .app-header.is-compact .brand > span { font-size: 11px; }
+  .phone .app-header.is-compact .header-tools .icon-button { width: 32px; height: 32px; min-width: 32px; min-height: 32px; }
+  .phone .app-header.is-compact .header-tools .icon-button .icon { width: 17px; height: 17px; }
 }
 
 /* ── 心情选择行（原型 04 新增记录页） ──────────────── */
