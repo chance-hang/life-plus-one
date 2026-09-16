@@ -134,6 +134,9 @@ h1,h2,h3,.detail-note{overflow-wrap:anywhere;min-width:0}
 @media(prefers-reduced-motion:reduce){.loading-clock{animation:none;opacity:1;transform:none}.loading-ticks,.loading-clock-progress,.loading-hand,.loading-pin,.loading-clock strong{animation:none;opacity:1}.loading-clock-progress{stroke-dashoffset:0}.loading-hand{transform:rotate(450deg)}}
 @media(prefers-reduced-motion:reduce){.loading-clock i{animation:none}}
 
+/* The experimental entrance loader is retired; entering the app is immediate. */
+.cover-loading{display:none!important}
+
 /* Prototype calibration · keep the existing photos, align the app grammar to the approved board. */
 .header-tools{display:flex;align-items:center;gap:4px}.header-tools .icon-button{background:transparent}.header-tools .icon-button:hover{background:var(--blue-soft)}
 .page-heading{grid-template-columns:44px minmax(0,1fr) 44px}.page-heading h1{text-align:left;font-size:22px;font-weight:700;letter-spacing:-.02em}.page-heading .icon-button:last-child{justify-self:end}
