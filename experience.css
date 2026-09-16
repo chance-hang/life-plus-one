@@ -128,3 +128,15 @@ h1,h2,h3,.detail-note{overflow-wrap:anywhere;min-width:0}
  .phone .app-header.is-compact .brand>b{font-size:30px}.phone .app-header.is-compact .brand>span{font-size:12px}.phone .app-header.is-compact .brand small{max-height:0;opacity:0;margin-top:0}
 }
 @media(prefers-reduced-motion:reduce){.loading-clock i{animation:none}}
+
+/* Feedback correction · keep the original +1 mark; refine only the supporting copy. */
+.brand>b{font-family:inherit;font-style:normal;font-weight:850;letter-spacing:-5px;text-shadow:none;transform:none}
+.brand>span{font-weight:600;letter-spacing:.02em}.brand small{font-size:11px;font-weight:500;letter-spacing:.04em}
+.cover-header .brand small{font-size:11px}.cover-header .brand>span{font-size:17px}
+.cover-loading{background:#e7f4ff;transition:opacity .28s ease}.loading-clock{display:grid;place-items:center;border:0;background:#3186eb;box-shadow:0 12px 30px #2c79c94d}.loading-clock:before{height:19px;background:#f7fbff}.loading-clock:after{height:14px;background:#f7fbff}.loading-clock b{position:relative;z-index:2;color:#f7fbff;font:800 20px/1 "Segoe UI",sans-serif;transform:skew(-6deg)}.loading-clock i{inset:0;border:3px solid transparent;border-top-color:#8fc5ff;border-right-color:#c3e0ff;animation:clock-turn 1.35s linear infinite}.cover-loading strong{font-size:16px}.cover-loading small{font-size:13px}
+@media(max-width:1099px){
+ .phone .app-header{top:32px;margin:0 -16px 18px;min-height:78px;padding:12px 16px 11px;background:#fcfdff;border-bottom:1px solid var(--line);box-shadow:0 6px 18px #244c6a12;isolation:isolate}
+ .phone .app-header.is-compact{min-height:58px;padding-top:7px;padding-bottom:7px;box-shadow:0 7px 16px #244c6a1c}
+ .phone .app-header .brand>b{font-size:44px}.phone .app-header .brand>span{font-size:15px}.phone .app-header .brand small{font-size:11px;max-height:20px}
+ .phone .app-header.is-compact .brand>b{font-size:32px}.phone .app-header.is-compact .brand>span{font-size:13px}
+}
