@@ -1,4 +1,4 @@
-/* finesse · register=product · sky-blue · system type · life journal · feedback only */
+/* finesse · register=h5+product · A=sky-blue · B=system-type · C=life-journal · D=feedback-only · E=lake-photography · SOUL=7 SPECTACLE=2 DENSITY=6 */
 /* Semantic tokens and shared components. Cover composition remains in life.css. */
 :root {
  --font-ui:"PingFang SC","Microsoft YaHei UI","Microsoft YaHei","HarmonyOS Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -168,3 +168,22 @@ h1,h2,h3,.detail-note{overflow-wrap:anywhere;min-width:0}
  .phone .app-header .brand>b{font-size:44px}.phone .app-header .brand>span{font-size:15px}.phone .app-header .brand small{font-size:11px;max-height:20px}
  .phone .app-header.is-compact .brand>b{font-size:32px}.phone .app-header.is-compact .brand>span{font-size:13px}
 }
+
+/* Final token lock · the prototype's visual grammar stays semantic at every route. */
+:root{
+ --color-brand:#4a90e2;--color-brand-press:#347fd2;--color-brand-soft:#eaf4ff;--color-brand-wash:#f4f9ff;
+ --color-bg:#f7fafd;--color-surface:#fcfdff;--color-text-primary:#1d2b3a;--color-text-secondary:#45586a;
+ --color-text-muted:#8ca3b8;--color-text-weak:#aebecc;--color-divider:#edf2f6;
+ --radius-lg:20px;--radius-md:16px;--radius-sm:12px;--space-page:16px;--space-card:12px;
+ --shadow-card-soft:0 4px 16px rgba(49,98,140,.06);--shadow-fab:0 6px 18px rgba(74,144,226,.28);
+}
+.phone{background:var(--color-bg)}
+.page-content{padding-inline:var(--space-page)}
+.life-banner,.wish-banner,.collection-summary,.number-hero,.places-landscape{border-radius:var(--radius-lg);box-shadow:var(--shadow-card-soft)}
+.module,.type-card,.wish-row,.menu-list,.stats>div,.stats>button,.revisit,.search-box{border-radius:var(--radius-md)}
+.record>.photo,.editor-gallery img,.detail-gallery button,.detail-gallery img{border-radius:var(--radius-sm)}
+.page-heading h1,.form-title,.detail-body h2,.timeline-year>h2{color:var(--color-text-primary)}
+.page-subtitle,.record p,.record small,.detail-meta,.wish-row small,.city-list span,.number-grid small,.empty p{color:var(--color-text-muted)}
+.nav-item.active,.pill{color:var(--color-brand)}
+.nav-add .icon{box-shadow:var(--shadow-fab)}
+.phone .app-header{background:rgba(252,253,255,.96)}
