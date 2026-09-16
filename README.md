@@ -4,7 +4,22 @@
 
 本分支为 `review-experience-20260916`。运行 `node serve.cjs`，打开 http://localhost:4186/?view=home 。页面持续显示“待验收”，使用独立验收存储，未连接或修改Prod数据。
 
-本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)。验证：`node verify-experience.cjs`。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)、[原型对齐清单](docs/PROTOTYPE_ALIGNMENT.md)。验证：`node verify-experience.cjs`。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+
+### 原型对齐（2026-09-16）
+
+新增 `prototype.css` 作为最外层视觉层（加载顺序 life.css → experience.css → prototype.css），按《产品原型图》10 页视觉稿对齐：
+
+- 首页：湖景照片 Hero + 白色大字天数；六宫格改为彩色圆底图标 + 数字统计；最近记录卡带收藏爱心。
+- 记录类型选择：改为 2 列图片卡网格（沿用既有示例配图）。
+- 人生清单：分段胶囊（全部 / 想去 / 想做 / 想体验）+ 缩略图卡片。
+- 1000 个第一次：左侧时间轴 + 年份节点 + 文字在上、宽幅照片在下的竖排卡片。
+- 私人美食档案：2 列网格，星级与爱心；私人电影记忆库：3 列海报网格。
+- 去过的地方：世界 / 中国 / 城市 / 列表分段切换 + 足迹统计卡。
+- 我的人生收藏夹：圆形头像 + Life Plus One · Since + 四格统计 + 菜单列表。
+- 新增记录表单：改为「标签 + 值」行式排布，新增心情选择行。
+
+图片素材沿用 codex 版本，未替换。`verify-experience.cjs` 77 组检查保持通过。
 
 根据《Life_Plus_One_产品方案_V1.1_UI视觉规范版》第 11 章校准。保留天蓝 / 湖蓝、湖景、生活照片和现有信息架构。当前为浏览器交互原型，可在电脑和手机尺寸预览。
 

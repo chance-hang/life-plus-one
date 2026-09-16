@@ -1,7 +1,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const allowed = new Set(['index.html','life.js','life.css','experience.js','experience.css','assets/cover-landscape.png','assets/memory-scenes.png']);
+const allowed = new Set(['index.html','life.js','life.css','experience.js','experience.css','prototype.css','assets/cover-landscape.png','assets/memory-scenes.png']);
 const mime = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png'};
 const port=Number(process.env.PORT || 4186);
 const host=process.env.HOST || '0.0.0.0';
