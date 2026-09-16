@@ -53,10 +53,50 @@
 }
 
 /* ── 首页品牌栏 ───────────────────────────────────
- * logo 完全沿用 codex 原样（字号 / 字重 / 字距都不覆盖）。 */
+ * 字形与字重沿用 codex 原样，整体收小一档并贴近左上角。
+ * 桌面面板里首个子元素的负外边距会被滚动容器夹住，所以靠页面留白上提。 */
+.phone .app-header { margin: -6px 0 18px; }
+.phone > .page-content.page-home { padding-top: 20px; }
+.phone .app-header .brand { gap: 11px; }
+.phone .app-header .brand > b { font-size: 34px; letter-spacing: -4px; padding-right: 3px; }
+.phone .app-header .brand > span { font-size: 12px; padding-left: 11px; }
+.phone .app-header .brand small { font-size: 8.5px; margin-top: 4px; letter-spacing: .8px; }
 .header-tools { gap: 4px; }
 .header-tools .icon-button { width: var(--pro-tap); height: var(--pro-tap); }
 .hello-line { display: none; }
+
+/* ── 首页卡片样式切换（照片版 / 简洁版） ──────────────
+ * 视觉上是小胶囊，按钮盒仍保留 44px 触控区（验收脚本会检查）。 */
+.home-toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0 2px 4px; }
+.home-toolbar .hello-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: 500 12px/18px var(--font-ui);
+  color: var(--pro-sub);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.home-toolbar .hello-line .icon { width: 16px; height: 16px; color: var(--greeting-sun); flex-shrink: 0; }
+.style-switch { display: inline-flex; align-items: center; flex-shrink: 0; }
+.style-switch-label { padding: 0 5px 0 2px; font: 500 10px/16px var(--font-ui); color: var(--pro-sub); letter-spacing: .5px; }
+.style-switch button { display: grid; place-items: center; min-height: var(--pro-tap); min-width: var(--pro-tap); padding: 0 2px; border: 0; background: transparent; }
+.style-switch button > span {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font: 600 11px/16px var(--font-ui);
+  color: var(--pro-sub);
+  white-space: nowrap;
+  transition: background .2s, color .2s;
+}
+.style-switch button.is-on > span { background: var(--pro-blue-wash); color: var(--pro-blue); box-shadow: inset 0 0 0 1px rgba(58, 140, 247, .22); }
 
 /* ── 首页 Hero：湖景照片 + 白色大数字 ───────────────── */
 .life-banner {
@@ -90,38 +130,68 @@
 .banner-copy p { font: 500 13px/20px var(--font-ui); color: rgba(255, 255, 255, .86); }
 .banner-caption { display: none; }
 
-/* ── 六宫格：彩色圆底图标 + 数字统计 ────────────────── */
+/* codex 简洁版卡片：浅色渐变 + 右侧露出照片 + 深蓝数字 + 落款 */
+.life-banner.style-classic { min-height: 168px; padding: 22px 20px; background: var(--blue-soft); }
+.life-banner.style-classic:before { background-position: center 61%; }
+.life-banner.style-classic:after { background: linear-gradient(90deg, var(--hero-wash-start), var(--hero-wash-mid) 62%, var(--hero-wash-end)); }
+.life-banner.style-classic .banner-copy { color: var(--pro-sub); }
+.life-banner.style-classic .banner-copy > span { font: 500 12px/18px var(--font-ui); color: var(--pro-sub); }
+.life-banner.style-classic .banner-copy > div { margin: 7px 0 10px; font: 500 12px/18px var(--font-ui); color: var(--pro-sub); }
+.life-banner.style-classic .banner-copy strong { font: 600 42px/50px var(--font-ui); letter-spacing: -.01em; color: var(--blue-deep); }
+.life-banner.style-classic .banner-copy em {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .85);
+  font: 600 13px/18px var(--font-ui);
+  font-style: normal;
+  color: var(--pro-blue);
+}
+.life-banner.style-classic .banner-copy p { font: 500 11px/17px var(--font-ui); color: var(--pro-sub); }
+.life-banner.style-classic .banner-caption {
+  display: block;
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  font: italic 13px Georgia, serif;
+  color: #7d95ad;
+  transform: rotate(-7deg);
+}
+
+/* ── 六宫格：彩色圆底图标 + codex 的说明文案 ────────── */
 .modules { gap: 10px; margin-block: 16px 20px; }
 .module {
   --tile: var(--pro-surface);
   background: var(--pro-surface);
   border: 0;
   border-radius: var(--pro-r-md);
-  padding: 16px 6px 14px;
-  min-height: 112px;
+  padding: 15px 5px 13px;
+  min-height: 106px;
   gap: 0;
   box-shadow: var(--pro-shadow);
 }
 .module .module-icon {
-  width: 52px;
-  height: 52px;
-  margin-bottom: 10px;
+  width: 50px;
+  height: 50px;
+  margin-bottom: 9px;
   border-radius: 50%;
   background: var(--icon-wash);
   color: var(--tone);
   filter: none;
 }
-.module .module-icon .icon { width: 25px; height: 25px; fill: none; stroke-width: 1.9; }
+.module .module-icon .icon { width: 24px; height: 24px; fill: none; stroke-width: 1.9; }
 .module strong { font: 600 14px/20px var(--font-ui); color: var(--pro-ink); }
 .module small,
 .module .module-number {
   display: block;
-  margin-top: 5px;
-  font: var(--pro-num);
-  color: var(--pro-ink);
+  margin-top: 4px;
+  font: 500 11px/16px var(--font-ui);
+  color: var(--pro-sub);
   white-space: nowrap;
 }
-.module small { font: var(--pro-num); color: var(--pro-ink); }
+.module small b { margin-right: 1px; font: 700 12px/16px var(--font-ui); color: var(--tone); }
 
 .module.wish { --tile: var(--pro-surface); --tone: var(--pro-blue); --icon-wash: var(--pro-blue-wash); }
 .module.place { --tone: var(--place); --icon-wash: var(--place-icon-wash); }
@@ -480,8 +550,12 @@
     height: calc(100dvh - 74px);
   }
 
+  /* 品牌栏贴近左上角；sticky 的 top 与 padding-top 保持一致，滚动时不遮挡内容 */
+  .phone .app-header { top: -16px; margin: -16px -24px 16px; padding: 16px 14px 10px; }
+  .phone > .page-content.page-home { padding-top: 16px; }
+
   /* 滚动后的紧凑页眉：缩得更多，占的版面更少 */
-  .phone .app-header.is-compact { padding-top: 12px; padding-bottom: 6px; box-shadow: 0 4px 10px rgba(36, 76, 106, .06); }
+  .phone .app-header.is-compact { padding-top: 16px; padding-bottom: 4px; box-shadow: 0 4px 10px rgba(36, 76, 106, .06); }
   .phone .app-header.is-compact .brand > b { font-size: 24px; letter-spacing: -3px; }
   .phone .app-header.is-compact .brand > span { font-size: 11px; }
   .phone .app-header.is-compact .header-tools .icon-button { width: 32px; height: 32px; min-width: 32px; min-height: 32px; }
@@ -512,4 +586,9 @@
 /* 网格卡标题允许两行；清单工具行收紧 */
 .record-list.grid-2 .record h3 { -webkit-line-clamp: 2; }
 .wish-tools .pill { padding: 0 12px; }
-.module small { font-size: 15px; }
+@media (max-width: 380px) {
+  .module small,
+  .module .module-number { font-size: 10px; }
+  .style-switch button > span { padding: 0 9px; }
+  .home-toolbar .hello-line { font-size: 11px; }
+}
