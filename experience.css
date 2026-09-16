@@ -1,31 +1,31 @@
 /* finesse · register=product · sky-blue · system type · life journal · feedback only */
 /* Semantic tokens and shared components. Cover composition remains in life.css. */
 :root {
- --font-ui:"PingFang SC","HarmonyOS Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+ --font-ui:"PingFang SC","Microsoft YaHei UI","Microsoft YaHei","HarmonyOS Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
  --type-display:700 36px/43px var(--font-ui); --type-hero:700 26px/35px var(--font-ui);
  --type-page:700 24px/32px var(--font-ui); --type-section:600 18px/26px var(--font-ui);
- --type-card:600 16px/23px var(--font-ui); --type-body:400 14px/21px var(--font-ui);
- --type-secondary:400 13px/20px var(--font-ui); --type-meta:400 12px/18px var(--font-ui);
- --type-caption:500 11px/16px var(--font-ui);
+ --type-card:600 16px/24px var(--font-ui); --type-body:500 14px/23px var(--font-ui);
+ --type-secondary:500 13px/21px var(--font-ui); --type-meta:500 12px/19px var(--font-ui);
+ --type-caption:600 11px/17px var(--font-ui);
  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px;
  --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px;
  --radius-compact:12px; --radius-card:14px; --radius-hero:18px; --radius-pill:999px;
  --border-card:1px solid var(--line); --shadow-card:0 4px 16px #244c6a0f;
  --icon-size:22px; --icon-entry:26px; --page-width:460px; --container-padding:16px;
- --control-height:52px; --nav-height:82px; --muted:#526b82; --surface:#fcfdff;
+ --control-height:52px; --nav-height:82px; --muted:#435d75; --surface:#fcfdff;
  --review-surface:#e9f5ff; --focus:#165fae; --success:#237762;
  font-family:var(--font-ui);font-size:14px;line-height:1.5;
 }
-html,body{overflow-x:clip} body{padding-top:32px;font:var(--type-body)}
+html,body{overflow-x:clip} body{padding-top:32px;font:var(--type-body);letter-spacing:.01em}
 button,input,select,textarea{font-family:var(--font-ui)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 button:active{transform:scale(.98)}
 h1,h2,h3,.detail-note{overflow-wrap:anywhere;min-width:0}
 .review-banner{position:fixed;inset:0 0 auto;z-index:60;min-height:32px;padding:7px 8px;background:var(--review-surface);color:var(--ink);text-align:center;font:var(--type-meta);border-bottom:var(--border-card)}
 .page-content{padding-inline:var(--container-padding)}
-.page-heading h1{font:var(--type-page);text-align:center}
+.page-heading h1{font:var(--type-page);text-align:center;letter-spacing:-.015em}
 .page-heading{gap:4px}.page-subtitle{font:var(--type-secondary);margin-bottom:24px}
-.section-head{margin-top:24px;margin-bottom:12px}.section-head h2{font:var(--type-section)}
+.section-head{margin-top:24px;margin-bottom:12px}.section-head h2{font:var(--type-section);letter-spacing:-.01em}
 .life-banner{min-height:184px;border-radius:var(--radius-hero);padding:20px}
 .banner-copy strong,.number-hero strong{font:var(--type-display);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
 .banner-copy p,.banner-copy>span{font:var(--type-meta)}
@@ -90,3 +90,11 @@ h1,h2,h3,.detail-note{overflow-wrap:anywhere;min-width:0}
 @media(min-width:1100px){body:not(.on-cover) .phone{margin-top:48px;margin-bottom:32px;min-height:0;height:calc(100dvh - 112px)}.phone>.page-content{padding-bottom:24px}}
 @media(max-width:380px){.page-heading h1{font-size:22px}.record[data-kind="food"] .photo{width:72px;height:72px}.form-columns{grid-template-columns:minmax(0,1fr)}.sheet{padding-inline:16px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Typography pass · make Chinese copy feel calm and legible on both Apple and Windows. */
+.page-subtitle,.form-subtitle,.record p,.record small,.detail-meta,.wish-row small,.tiny-note,#photo-status,.privacy-copy small,
+.revisit small,.city-list span,.number-grid small,.empty p{letter-spacing:.01em}
+.form-title,.sheet-title h2,.detail-body h2,.timeline-year>h2{letter-spacing:-.015em}
+.record h3,.wish-row h3{line-height:24px;letter-spacing:-.005em}
+.module small,.type-card small{margin-top:8px}
+.detail-note{line-height:1.85}
