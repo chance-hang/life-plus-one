@@ -129,6 +129,26 @@ h1,h2,h3,.detail-note{overflow-wrap:anywhere;min-width:0}
 }
 @media(prefers-reduced-motion:reduce){.loading-clock i{animation:none}}
 
+/* Prototype calibration · keep the existing photos, align the app grammar to the approved board. */
+.header-tools{display:flex;align-items:center;gap:4px}.header-tools .icon-button{background:transparent}.header-tools .icon-button:hover{background:var(--blue-soft)}
+.page-heading{grid-template-columns:44px minmax(0,1fr) 44px}.page-heading h1{text-align:left;font-size:22px;font-weight:700;letter-spacing:-.02em}.page-heading .icon-button:last-child{justify-self:end}
+.page-subtitle{font-size:13px;line-height:21px;margin:2px 0 20px;padding-left:44px}
+.life-banner{min-height:176px;padding:21px 20px;border-radius:18px;box-shadow:0 5px 16px #244c6a12}.banner-copy strong{font-size:42px;font-weight:700}.banner-copy p{font-size:12px;line-height:19px;font-weight:500}.banner-caption{font-size:12px;font-weight:600}
+.modules{gap:10px;margin-block:18px}.module{min-height:108px;border-radius:17px;padding:13px 6px 12px}.module-icon{width:38px;height:34px;margin-bottom:6px}.module-icon .icon{width:27px;height:27px}.module strong,.type-card strong{font-size:14px;line-height:21px}.module small,.type-card small{font-size:11px;line-height:17px}
+.section-head{margin-top:22px;margin-bottom:10px}.section-head h2{font-size:18px;line-height:25px}.section-head .text-button{font-size:12px;font-weight:600}
+.record-list{gap:10px}.record{min-height:78px;gap:12px;padding:9px 0}.record>.photo{width:72px;height:64px;border-radius:12px}.record h3{font-size:14px;line-height:21px}.record p{font-size:11px;line-height:18px;margin-top:1px}.record small{font-size:12px;line-height:19px;margin-top:2px}
+.revisit{min-height:68px;margin-top:18px;padding:12px 14px;border-radius:16px;box-shadow:0 4px 12px #244c6a0d}.revisit strong{font-size:14px;line-height:21px}.revisit small{font-size:12px;line-height:18px}
+.search-box{border-radius:16px;padding:9px 13px}.search-box input{font-size:13px}.chips{gap:7px}.chip{font-size:12px;padding:8px 12px}
+.type-grid{gap:10px}.type-card{min-height:116px;border-radius:17px}.type-card .module-icon{margin-bottom:7px}
+.wish-banner,.collection-summary,.number-hero{border-radius:18px}.wish-list{gap:10px}.wish-row{padding:14px;border-radius:16px}.wish-row h3{font-size:14px;line-height:21px}.wish-row small{font-size:12px;line-height:18px}
+.stats.three{gap:8px}.stats>div,.stats>button{border-radius:16px;padding:16px 8px}.stats b{font-size:28px;font-weight:700}.stats span{font-size:12px;font-weight:600}
+.places-landscape{height:190px;border-radius:18px;margin-top:18px}.places-landscape span{font-size:15px}.city-list button{padding:15px 4px}.city-list strong{font-size:14px}
+.timeline-year{margin:21px 0 25px}.timeline-year>h2{font-size:22px;font-weight:700;margin-bottom:13px}.timeline-month>h3{font-size:12px;font-weight:600;margin-bottom:10px}.timeline-year .record-list{padding-left:17px}
+.number-grid{gap:10px}.number-grid>button{border-radius:16px;padding:16px 13px}.number-grid b{font-size:30px}.number-grid span{font-size:13px}.number-grid small{font-size:11px}
+.menu-list{border-radius:18px;padding:0 16px}.menu-list>button{padding:16px 0;font-size:14px}.profile{padding-bottom:22px}.profile h2{font-size:20px}
+.bottom-nav{min-height:82px}.nav-item{font-size:12px;line-height:18px}.nav-item .icon{width:22px;height:22px}.nav-add .icon{width:48px;height:48px}
+@media(max-width:380px){.page-heading h1{font-size:21px}.page-subtitle{padding-left:42px}.life-banner{min-height:168px}.module{min-height:104px}.record h3{font-size:13px}.record small{font-size:11px}}
+
 /* Feedback correction · keep the original +1 mark; refine only the supporting copy. */
 .brand>b{font-family:inherit;font-style:normal;font-weight:850;letter-spacing:-5px;text-shadow:none;transform:none}
 .brand>span{font-weight:600;letter-spacing:.02em}.brand small{font-size:11px;font-weight:500;letter-spacing:.04em}
