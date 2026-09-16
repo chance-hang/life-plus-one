@@ -1,5 +1,11 @@
 # Life Plus One 视觉交互 Demo
 
+## 当前待验收版本
+
+本分支为 `review-experience-20260916`。运行 `node serve.cjs`，打开 http://localhost:4186/?view=home 。页面持续显示“待验收”，使用独立验收存储，未连接或修改Prod数据。
+
+本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)。验证：`node verify-experience.cjs`。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+
 根据《Life_Plus_One_产品方案_V1.1_UI视觉规范版》第 11 章校准。保留天蓝 / 湖蓝、湖景、生活照片和现有信息架构。当前为浏览器交互原型，可在电脑和手机尺寸预览。
 
 ## 打开
