@@ -375,8 +375,12 @@ const clashRead = () => {
     for (const [name, card] of [['瞬间卡', photo], ['天数卡', classic]]) {
       assert.equal(card.hero.captionMetrics, expectCaptionMetrics,
         `${name}落款的字号/行高/字体族应与结语一致：期望 ${expectCaptionMetrics}，实际 ${card.hero.captionMetrics}`);
-      // 白字不透明 + 至少两层深色光晕：半透明字会把亮度让给身后的照片，一亮就看不见
-      assert(/^rgb\(255, 255, 255\)$/.test(card.hero.captionColor), `${name}落款应为纯白实色，实际 ${card.hero.captionColor}`);
+      // 落款不能用纯白：纯白落在天数卡上就是整张卡唯一的白（那张卡的正文是灰蓝 --pro-sub、
+      // 大数字是深蓝 --blue-deep），用户反馈「太亮、和氛围格格不入」。
+      // 取卡片蓝提亮后的中间色：两张卡都像卡片自己人，压在照片上也还压得住。
+      // 深浅有据：再浅 = 回到「太亮」，再深一点点天数卡的亮水面上就压不住了（见 prototype.css 注释）。
+      assert.equal(card.hero.captionColor, 'rgba(198, 220, 245, 0.92)',
+        `${name}落款应为浅蓝 .92（不用纯白，避免在天数卡上抢眼），实际 ${card.hero.captionColor}`);
       assert((card.hero.captionShadow.match(/rgba\(/g) || []).length >= 2, `${name}落款应有≥2 层深色光晕，实际 ${card.hero.captionShadow}`);
     }
 
