@@ -55,9 +55,9 @@
   text-align: left;
 }
 
-/* ── 首页页眉：两个圆角浮块，滚动时向两侧角落收拢 ────────
- * 容器自身不画底色（不再出现白色矩形），只有左右两个胶囊着色，
- * 颜色取页面底色 --pro-canvas；::before 是一层同色柔化遮罩，既挡住
+/* ── 首页页眉：无边框，直接坐在页面底色上，滚动时向两侧角落收拢 ──
+ * 容器与左右两块都不画底色、不描边、不投影（"框"会显得突兀、也把页眉和
+ * 页面切开），只有内容本身；::before 是一层同色柔化遮罩，既挡住
  * 从下方滚过的内容，也保证内容不会从页眉顶端穿出（sticky top:0）。
  * 负的左右外边距 = 页面留白 20px，让遮罩铺满面板整宽。 */
 .phone .app-header {
@@ -92,18 +92,20 @@
 }
 .phone > .page-content.page-home { padding-top: 0; }
 
-/* 两个胶囊：同底色 + 圆角 + 轻投影；transform-origin 贴外侧，缩放时朝角落收 */
+/* 左右两块都不画框：无底色、无圆角轮廓、无投影，和页面融为一体。
+ * transform-origin 贴外侧上角，缩放时朝那个角落收。 */
 .phone .app-header .brand,
 .phone .app-header .header-tools {
   min-height: 46px;
-  border-radius: 23px;
-  background: var(--pro-canvas);
-  box-shadow: 0 4px 14px rgba(43, 86, 135, .08);
-  transition: transform .34s var(--pro-ease), box-shadow .34s var(--pro-ease);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition: transform .34s var(--pro-ease);
 }
 /* transform-origin 取外侧上角，缩放时整块朝那个角收进去 */
-.phone .app-header .brand { gap: 10px; padding: 6px 14px 6px 10px; transform-origin: left top; }
-.phone .app-header .header-tools { gap: 0; padding: 1px 3px; transform-origin: right top; }
+/* 去框之后左侧要贴齐页面留白（20px），否则内容悬在留白里看着是歪的 */
+.phone .app-header .brand { gap: 10px; padding: 6px 0; transform-origin: left top; }
+.phone .app-header .header-tools { gap: 0; padding: 0; transform-origin: right top; }
 .phone .app-header .brand > b { font-size: 28px; line-height: 1; letter-spacing: -3px; padding-right: 3px; }
 .phone .app-header .brand > span { font-size: 11px; line-height: 14px; padding-left: 10px; }
 .phone .app-header .brand small {
@@ -119,11 +121,11 @@
 .phone .app-header .header-tools .icon-button { width: var(--pro-tap); height: var(--pro-tap); }
 .phone .app-header .header-tools .icon-button .icon { width: 19px; height: 19px; }
 
-/* 滚动后：整体缩到 8 成，左块往左上角、右块往右上角滑动，投影加深。
+/* 滚动后：整体缩到 8 成，左块往左上角、右块往右上角滑动。
  * 只用 transform 缩放，页眉在文档流里的高度不变，滚动时下方内容不会跳动。 */
 .phone .app-header.is-compact { min-height: 0; padding: 12px 20px 4px; background: transparent; border-bottom: 0; box-shadow: none; }
-.phone .app-header.is-compact .brand { transform: translate(-6px, -2px) scale(.8); box-shadow: 0 6px 18px rgba(43, 86, 135, .14); }
-.phone .app-header.is-compact .header-tools { transform: translate(6px, -2px) scale(.8); box-shadow: 0 6px 18px rgba(43, 86, 135, .14); }
+.phone .app-header.is-compact .brand { transform: translate(-6px, -2px) scale(.8); }
+.phone .app-header.is-compact .header-tools { transform: translate(6px, -2px) scale(.8); }
 .phone .app-header.is-compact .brand small { max-height: 0; opacity: 0; margin-top: 0; }
 /* 收态只靠 scale 缩放，字号保持原值（覆盖 life.css 里的紧凑字号） */
 .phone .app-header.is-compact .brand > b { font-size: 28px; }
@@ -149,21 +151,55 @@
   overflow: hidden;
 }
 .home-toolbar .hello-line .icon { width: 16px; height: 16px; color: var(--greeting-sun); flex-shrink: 0; }
-.style-switch { display: inline-flex; align-items: center; flex-shrink: 0; }
-.style-switch-label { padding: 0 5px 0 2px; font: 500 10px/16px var(--font-ui); color: var(--pro-sub); letter-spacing: .5px; }
-.style-switch button { display: grid; place-items: center; min-height: var(--pro-tap); min-width: var(--pro-tap); padding: 0 2px; border: 0; background: transparent; }
-.style-switch button > span {
+/* ── 首页卡片：右上角一个双箭头按钮切换两种卡片，切换靠横向滑动 ──
+ * 结构：.banner-wrap（裁切 + 圆角 + 投影）> .banner-track（横向轨道）> .banner-slide（一屏一张卡）
+ * 切换时两张卡同时在轨道里横移，不整页重绘。 */
+.banner-wrap {
+  position: relative;
+  border-radius: var(--pro-r-lg);
+  overflow: hidden;
+  box-shadow: var(--pro-shadow);
+}
+.banner-track { display: flex; width: 100%; }
+/* 每屏一张卡；卡片用 flex:1 撑满这一屏的高度，两张卡高度不一致时也不会露底 */
+.banner-slide { flex: 0 0 100%; min-width: 0; display: flex; }
+/* 圆角与投影交给外层裁切容器，卡片自己留空，滑动时边角不会露出直角。
+ * 两种版本身高必须一致（这里统一 196px，优先级高于 .life-banner.style-classic 的 168px），
+ * 否则滑动时轨道高度取两张卡的最大值，收尾瞬间会跳一下。 */
+.banner-wrap .banner-slide .life-banner { flex: 1; min-height: 196px; border-radius: 0; box-shadow: none; }
+
+.banner-swap {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  z-index: 2;
+  width: var(--pro-tap);
+  height: var(--pro-tap);
   display: grid;
   place-items: center;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font: 600 11px/16px var(--font-ui);
-  color: var(--pro-sub);
-  white-space: nowrap;
-  transition: background .2s, color .2s;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
-.style-switch button.is-on > span { background: var(--pro-blue-wash); color: var(--pro-blue); box-shadow: inset 0 0 0 1px rgba(58, 140, 247, .22); }
+.banner-swap > span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .86);
+  color: var(--pro-ink);
+  box-shadow: 0 2px 8px rgba(23, 58, 96, .16);
+  transition: transform .2s var(--pro-ease), background .2s;
+}
+.banner-swap .icon { width: 17px; height: 17px; }
+.banner-swap:active > span { transform: scale(.92); }
+/* 简洁版底色是浅色渐变，白色小圆点不够跳，换成更实一点的底 + 深蓝图标 */
+.banner-wrap[data-style="classic"] .banner-swap > span {
+  background: rgba(255, 255, 255, .95);
+  color: var(--blue-deep);
+  box-shadow: 0 2px 8px rgba(36, 108, 204, .2);
+}
 
 /* ── 首页 Hero：湖景照片 + 白色大数字 ───────────────── */
 .life-banner {
@@ -198,7 +234,8 @@
 .banner-caption { display: none; }
 
 /* codex 简洁版卡片：浅色渐变 + 右侧露出照片 + 深蓝数字 + 落款 */
-.life-banner.style-classic { min-height: 168px; padding: 22px 20px; background: var(--blue-soft); }
+/* 高度由上面的滑轨统一给（.banner-wrap .banner-slide .life-banner），这里只管底色与排版 */
+.life-banner.style-classic { padding: 22px 20px; background: var(--blue-soft); }
 .life-banner.style-classic:before { background-position: center 61%; }
 .life-banner.style-classic:after { background: linear-gradient(90deg, var(--hero-wash-start), var(--hero-wash-mid) 62%, var(--hero-wash-end)); }
 .life-banner.style-classic .banner-copy { color: var(--pro-sub); }
@@ -644,6 +681,5 @@
 @media (max-width: 380px) {
   .module small,
   .module .module-number { font-size: 10px; }
-  .style-switch button > span { padding: 0 9px; }
   .home-toolbar .hello-line { font-size: 11px; }
 }

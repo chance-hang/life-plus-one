@@ -10,10 +10,13 @@ const paths = {
  food:'M5 2v7m4-7v7M3 2v6a4 4 0 0 0 8 0V2M7 12v10M20 22V2c-5 2-5 12 0 12',
  movie:'M3 8h18v12H3ZM3 8V3h18v5M7 3l3 5m4-5 3 5m-7 4 5 3-5 3Z',
  numbers:'M4 21V12h3v9Zm7 0V4h3v17Zm7 0V8h3v13Z',
- timeline:'M12 8v5l4 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
+ // 时间轴用「竖轴 + 三个节点 + 刻度」，比原来的钟表更好认；页眉与底部导航共用
+ timeline:'M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20',
  mine:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-2a8 8 0 0 1 16 0v2',
  search:'M16 16l6 6M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
  plus:'M12 4v16M4 12h16', arrow:'M4 12h16m-6-6 6 6-6 6', back:'m15 4-8 8 8 8', close:'m6 6 12 12M6 18 18 6',
+ // 双箭头（⇄）：首页卡片右上角用来切换卡片样式
+ swap:'M3.5 8.5h14.5m-3.5-3.5 3.5 3.5-3.5 3.5M20.5 15.5H6m3.5-3.5-3.5 3.5 3.5 3.5',
  heart:'M20 4c-3-2-6 0-8 2-2-2-5-4-8-2-6 5 2 12 8 17 6-5 14-12 8-17Z',
  check:'m4 12 5 5L20 6', lock:'M6 10V7a6 6 0 0 1 12 0v3M4 10h16v12H4Zm8 5v3',
  moment:'M4 7h4l2-3h4l2 3h4v14H4ZM16 14a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
@@ -55,18 +58,74 @@ var recordList; // Registered by experience.js
 const HOME_STYLE_KEY = 'life-plus-one-review-home-style';
 const readHomeStyle = () => { try { return localStorage.getItem(HOME_STYLE_KEY)==='classic'?'classic':'photo'; } catch { return 'photo'; } };
 let homeStyle = readHomeStyle();
-function setHomeStyle(style) { homeStyle = style==='classic'?'classic':'photo'; try { localStorage.setItem(HOME_STYLE_KEY,homeStyle); } catch {} render(); }
-function home() {
+const swapLabel = style => style==='classic' ? '切换为照片版卡片' : '切换为简洁版卡片';
+/* 一张卡（两种版本共用一个渲染函数，切换时只换这张卡，不动整页） */
+function bannerCard(style) {
  const days=state.birthday ? Math.floor((Date.parse(today())-Date.parse(state.birthday))/86400000)+1 : null;
- const countType=t=>state.records.filter(r=>r.type===t).length;
- const modules=[['wishes','wish','人生清单',state.wishes.length,'件小小心愿'],['places','place','去过的地方',distinct('city'),'座城市的故事'],['first','first','第一次',countFirst(),'次勇敢尝试'],['food','food','美食',countType('food'),'份味觉记忆'],['movie','movie','电影',countType('movie'),'场光影之旅'],['numbers','numbers','人生数字',null,'关于我的小小宇宙']];
  const count=(days || state.records.length).toLocaleString();
- const classic=homeStyle==='classic';
- const toolbar=`<div class="home-toolbar">${classic?`<span class="hello-line">嗨，今天也很高兴见到你 ${icon('sun')}</span>`:''}<div class="style-switch" role="group" aria-label="首页卡片样式"><span class="style-switch-label">卡片</span><button type="button" data-action="home-style" data-style="photo" class="${classic?'':'is-on'}" aria-pressed="${!classic}"><span>照片版</span></button><button type="button" data-action="home-style" data-style="classic" class="${classic?'is-on':''}" aria-pressed="${classic}"><span>简洁版</span></button></div></div>`;
- const banner=classic
+ return style==='classic'
   ? `<button class="life-banner style-classic" data-go="numbers"><div class="banner-copy"><span>${days?'你已经生活了':'你已经收藏了'}</span><div><strong>${count}</strong> ${days?'天':'个瞬间'}<em>+1</em></div><p>${days?'仍有很多值得 +1 的瞬间，在路上。':'继续出发，去体验更多可能。'}</p></div><span class="banner-caption">A More Colorful Life</span></button>`
   : `<button class="life-banner" data-go="numbers"><div class="banner-copy"><span>${days?'已经和这个世界相遇了':'已经收藏了'}</span><div><strong>${count}</strong> ${days?'天':'个瞬间'}</div><p>继续出发，去体验更多可能。</p></div></button>`;
- return `<header class="app-header">${brand()}<div class="header-tools"><button class="icon-button" data-go="search" aria-label="搜索记录">${icon('search')}</button><button class="icon-button" data-go="timeline" aria-label="查看时间轴">${icon('bell')}</button></div></header>${toolbar}${banner}<section class="modules" aria-label="人生入口">${modules.map(([p,i,t,n,u])=>`<button class="module ${i}" data-go="${p}"><span class="module-icon">${icon(i)}</span><strong>${t}</strong><small>${n===null?'':`<b>${n}</b> `}${u}</small></button>`).join('')}</section>${sectionHead('最近的人生','timeline')}${recordList(sorted().slice(0,3))}<p class="tiny-note">${state.demo?'正在体验示例人生 · 你添加的记录保存在本机':'记录保存在当前浏览器'} · 默认私密</p>`;
+}
+const bannerSlide = style => `<div class="banner-slide">${bannerCard(style)}</div>`;
+/* 卡片外层：右上角一个双箭头按钮负责切换 */
+// 图标外面那层 <span> 是视觉小圆底（按钮盒保持 44px 触控区，验收脚本会查）
+const homeHero = () => `<div class="banner-wrap" data-style="${homeStyle}"><div class="banner-track">${bannerSlide(homeStyle)}</div><button class="banner-swap" data-action="home-swap" aria-label="${swapLabel(homeStyle)}"><span>${icon('swap')}</span></button></div>`;
+function setHomeStyle(style) {
+ const next = style==='classic'?'classic':'photo';
+ if (next === homeStyle) return;
+ homeStyle = next;
+ try { localStorage.setItem(HOME_STYLE_KEY,homeStyle); } catch {}
+ const wrap = $('.banner-wrap');
+ if (!wrap) { render(); return; }          // 不在首页时退回整页渲染
+ const track = wrap.querySelector('.banner-track');
+ wrap.dataset.style = homeStyle;
+ track.style.transition = 'none';
+ track.style.transform = 'translateX(0)';
+ track.innerHTML = bannerSlide(homeStyle);
+ wrap.querySelector('.banner-swap')?.setAttribute('aria-label', swapLabel(homeStyle));
+ requestAnimationFrame(()=>{ track.style.transition = ''; });
+}
+/* 右上角按钮：两张卡在轨道里横向滑动切换，不做整页刷新 */
+function swapHomeStyle() {
+ const next = homeStyle==='classic' ? 'photo' : 'classic';
+ const wrap = $('.banner-wrap');
+ const track = wrap && wrap.querySelector('.banner-track');
+ const current = track && track.querySelector('.banner-slide');
+ if (!track || !current) { setHomeStyle(next); return; }
+ homeStyle = next;
+ try { localStorage.setItem(HOME_STYLE_KEY,homeStyle); } catch {}
+ wrap.dataset.style = homeStyle;
+ wrap.querySelector('.banner-swap')?.setAttribute('aria-label', swapLabel(homeStyle));
+ const incoming = document.createElement('div');
+ incoming.className = 'banner-slide';
+ incoming.innerHTML = bannerCard(homeStyle);
+ const forward = homeStyle==='classic';   // 照片版 → 简洁版：新卡从右侧滑入，反之从左侧
+ current.setAttribute('inert','');
+ track.dataset.swapping = '1';
+ if (forward) track.append(incoming);
+ else { track.prepend(incoming); track.style.transition='none'; track.style.transform='translateX(-100%)'; void track.offsetWidth; }
+ const settle = () => {
+  if (track.dataset.swapping !== '1') return;
+  delete track.dataset.swapping;
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';   // 旧卡移除后，新卡就停在原位
+  current.remove();
+  requestAnimationFrame(()=>{ track.style.transition = ''; });
+ };
+ if (matchMedia('(prefers-reduced-motion: reduce)').matches) { settle(); return; }
+ requestAnimationFrame(()=>{
+  track.style.transition = 'transform .42s cubic-bezier(.22, 1, .36, 1)';
+  track.style.transform = forward ? 'translateX(-100%)' : 'translateX(0)';
+ });
+ setTimeout(settle, 520);
+}
+function home() {
+ const countType=t=>state.records.filter(r=>r.type===t).length;
+ const modules=[['wishes','wish','人生清单',state.wishes.length,'件小小心愿'],['places','place','去过的地方',distinct('city'),'座城市的故事'],['first','first','第一次',countFirst(),'次勇敢尝试'],['food','food','美食',countType('food'),'份味觉记忆'],['movie','movie','电影',countType('movie'),'场光影之旅'],['numbers','numbers','人生数字',null,'关于我的小小宇宙']];
+ // 问候行常驻，不随卡片样式切换（卡片右上角的双箭头才是切换入口）
+ const toolbar=`<div class="home-toolbar"><span class="hello-line">嗨，今天也很高兴见到你 ${icon('sun')}</span></div>`;
+ return `<header class="app-header">${brand()}<div class="header-tools"><button class="icon-button" data-go="search" aria-label="搜索记录">${icon('search')}</button><button class="icon-button" data-go="timeline" aria-label="查看时间轴">${icon('timeline')}</button></div></header>${toolbar}${homeHero()}<section class="modules" aria-label="人生入口">${modules.map(([p,i,t,n,u])=>`<button class="module ${i}" data-go="${p}"><span class="module-icon">${icon(i)}</span><strong>${t}</strong><small>${n===null?'':`<b>${n}</b> `}${u}</small></button>`).join('')}</section>${sectionHead('最近的人生','timeline')}${recordList(sorted().slice(0,3))}<p class="tiny-note">${state.demo?'正在体验示例人生 · 你添加的记录保存在本机':'记录保存在当前浏览器'} · 默认私密</p>`;
 }
 let collectionFilter='all', collectionKind='';
 function collection(kind) {
@@ -168,7 +227,7 @@ document.addEventListener('click',event=>{ const b=event.target.closest('button,
  if(d.confirmDelete){const r=state.records.find(r=>r.id===d.confirmDelete);const next={...state,records:state.records.filter(item=>item.id!==d.confirmDelete),wishes:state.wishes.map(w=>w.id===r?.wishId?{...w,state:'想做'}:w)};if(persist(next)){go('timeline');toast('记录已删除');}}
  if(d.action==='remove-photo'){photoRequest++;photoLoading=false;pendingPhoto=null;pendingScene=null;$('#photo-file').value='';$('#photo-preview').hidden=true;$('#photo-status').textContent='照片已移除，可以重新选择。';}
  if(d.action==='types')openTypes(); if(d.action==='close')closeModal(); if(d.action==='wish')wishForm();
- if(d.action==='home-style')setHomeStyle(d.style);
+ if(d.action==='home-swap')swapHomeStyle();
  if(d.action==='birthday')openModal(`<h2 class="form-title">你好，来到世界的那一天。</h2><form id="birthday-form"><label class="field">我的出生日期<input type="date" name="birthday" value="${esc(state.birthday)}" required max="${today()}" min="1900-01-01"/></label><button class="primary full">保存生日</button></form>`,'填写生日');
  if(d.action==='export'){const url=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`life-plus-one-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('已导出你的记录和愿望');}
 });

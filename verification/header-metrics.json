@@ -27,28 +27,36 @@
     "fromPanelLeft": 20,
     "toPanelRight": 20
    },
+   "timelineIcon": {
+    "header": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20",
+    "nav": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20"
+   },
    "brand": {
     "box": [
      20,
      46,
-     168,
+     144,
      46
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px",
-    "padding": "6px 14px 6px 10px",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px",
+    "padding": "6px 0px",
     "smallHeight": 10,
     "markSize": "28px"
    },
    "tools": {
     "box": [
-     261,
+     267,
      46,
-     94,
+     88,
      46
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px"
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px"
    },
    "gap": {
     "above": true,
@@ -85,28 +93,36 @@
     "fromPanelLeft": 14,
     "toPanelRight": 14
    },
+   "timelineIcon": {
+    "header": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20",
+    "nav": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20"
+   },
    "brand": {
     "box": [
      14,
      44,
-     134,
+     115,
      37
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px",
-    "padding": "6px 14px 6px 10px",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px",
+    "padding": "6px 0px",
     "smallHeight": 0,
     "markSize": "28px"
    },
    "tools": {
     "box": [
-     286,
+     291,
      44,
-     75,
+     70,
      37
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px"
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px"
    },
    "gap": {
     "above": true,
@@ -115,7 +131,7 @@
     "tools": true
    },
    "smallControls": [
-    "brand:134x37",
+    "brand:115x37",
     "icon-button:35x35",
     "icon-button:35x35"
    ]
@@ -149,28 +165,36 @@
     "fromPanelLeft": 20,
     "toPanelRight": 20
    },
+   "timelineIcon": {
+    "header": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20",
+    "nav": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20"
+   },
    "brand": {
     "box": [
      20,
      46,
-     168,
+     144,
      46
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px",
-    "padding": "6px 14px 6px 10px",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px",
+    "padding": "6px 0px",
     "smallHeight": 10,
     "markSize": "28px"
    },
    "tools": {
     "box": [
-     346,
+     352,
      46,
-     94,
+     88,
      46
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px"
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px"
    },
    "gap": {
     "above": true,
@@ -207,28 +231,36 @@
     "fromPanelLeft": 14,
     "toPanelRight": 14
    },
+   "timelineIcon": {
+    "header": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20",
+    "nav": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20"
+   },
    "brand": {
     "box": [
      14,
      44,
-     134,
+     115,
      37
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px",
-    "padding": "6px 14px 6px 10px",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px",
+    "padding": "6px 0px",
     "smallHeight": 0,
     "markSize": "28px"
    },
    "tools": {
     "box": [
-     371,
+     376,
      44,
-     75,
+     70,
      37
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px"
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px"
    },
    "gap": {
     "above": true,
@@ -237,7 +269,7 @@
     "tools": true
    },
    "smallControls": [
-    "brand:134x37",
+    "brand:115x37",
     "icon-button:35x35",
     "icon-button:35x35"
    ]
@@ -271,28 +303,36 @@
     "fromPanelLeft": 20,
     "toPanelRight": 20
    },
+   "timelineIcon": {
+    "header": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20",
+    "nav": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20"
+   },
    "brand": {
     "box": [
      828,
      68,
-     168,
+     144,
      46
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px",
-    "padding": "6px 14px 6px 10px",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px",
+    "padding": "6px 0px",
     "smallHeight": 10,
     "markSize": "28px"
    },
    "tools": {
     "box": [
-     1114,
+     1120,
      68,
-     94,
+     88,
      46
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px"
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px"
    },
    "gap": {
     "above": false,
@@ -329,28 +369,36 @@
     "fromPanelLeft": 14,
     "toPanelRight": 14
    },
+   "timelineIcon": {
+    "header": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20",
+    "nav": "M6 3v18M4.4 7.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 12a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M4.4 16.5a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 1 1-3.2 0M10.5 7.5H20M10.5 12h6.5M10.5 16.5H20"
+   },
    "brand": {
     "box": [
      822,
      66,
-     134,
+     115,
      37
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px",
-    "padding": "6px 14px 6px 10px",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px",
+    "padding": "6px 0px",
     "smallHeight": 0,
     "markSize": "28px"
    },
    "tools": {
     "box": [
-     1139,
+     1144,
      66,
-     75,
+     70,
      37
     ],
-    "background": "rgb(238, 244, 253)",
-    "radius": "23px"
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "shadow": "none",
+    "border": "0px"
    },
    "gap": {
     "above": false,
@@ -359,7 +407,7 @@
     "tools": true
    },
    "smallControls": [
-    "brand:134x37",
+    "brand:115x37",
     "icon-button:35x35",
     "icon-button:35x35"
    ]
