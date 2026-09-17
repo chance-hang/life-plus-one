@@ -4,7 +4,10 @@
 
 本分支为 `review-experience-20260916`。运行 `node serve.cjs`，打开 http://localhost:4186/?view=home 。页面持续显示“待验收”，使用独立验收存储，未连接或修改Prod数据。
 
-本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)、[设计令牌](docs/DESIGN_TOKENS.md)、[原型对齐清单](docs/PROTOTYPE_ALIGNMENT.md)。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)、[设计令牌](docs/DESIGN_TOKENS.md)、[原型对齐清单](docs/PROTOTYPE_ALIGNMENT.md)。
+
+> **接手开发请先读 [docs/HANDOFF_TOKENS_TO_CODEX.md](docs/HANDOFF_TOKENS_TO_CODEX.md)**——
+> 令牌层的交接说明：硬红线、还没清干净的残留色值清单、可复用方法论。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
 
 ## 样式分层
 
