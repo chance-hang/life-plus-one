@@ -4,7 +4,21 @@
 
 本分支为 `review-experience-20260916`。运行 `node serve.cjs`，打开 http://localhost:4186/?view=home 。页面持续显示“待验收”，使用独立验收存储，未连接或修改Prod数据。
 
-本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)、[原型对齐清单](docs/PROTOTYPE_ALIGNMENT.md)。验证：`node verify-experience.cjs`。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)、[原型对齐清单](docs/PROTOTYPE_ALIGNMENT.md)。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+
+### 验证脚本
+
+先 `node serve.cjs`，再按需执行；每个脚本都用独立临时浏览器上下文，不写入用户浏览器数据。
+
+| 脚本 | 覆盖范围 |
+| --- | --- |
+| `node verify-experience.cjs` | 77 组路由/视口检查 + 5 组短视口编辑器检查、CRUD、草稿守卫、存储失败重试、Prod 隔离 |
+| `node verify-header.cjs` | 页眉契约：375/460/1440 三档的静止与滚动两态（透明容器、同底色圆角胶囊、等高、触控区、贴顶位置、收拢幅度） |
+| `python verify-header-pixels.py` | 页眉像素复核：滚动后内容不得透过页眉（含关掉遮罩的对照组） |
+| `node verify-home-cards.cjs` | 首页品牌胶囊 + 两种卡片格式 + 切换持久化 + 六宫格文案 |
+| `node verify-desktop-shell.cjs` | 桌面预览壳面板比例与页眉几何 |
+
+`verify.cjs`、`verify-ui.cjs` 引用的是已不存在的旧表单元素（`#record-form`、`#note-count`、`#photo-file`），在 experience.js 接管表单后即未同步，属于历史遗留，当前以 `verify-experience.cjs` 为准。
 
 ### 原型对齐（2026-09-16）
 

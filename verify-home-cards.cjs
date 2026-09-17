@@ -19,8 +19,18 @@ const read = () => {
     panel: [Math.round(panel.width), Math.round(panel.height)],
     brand: {
       markSize: getComputedStyle(mark).fontSize,
-      offset: [Math.round(mark.getBoundingClientRect().left - panel.left), Math.round(mark.getBoundingClientRect().top - panel.top)],
-      height: Math.round(q('.phone .app-header .brand').getBoundingClientRect().height),
+      markOffset: [Math.round(mark.getBoundingClientRect().left - panel.left), Math.round(mark.getBoundingClientRect().top - panel.top)],
+      capsule: (() => {
+        const el = q('.phone .app-header .brand'), r = el.getBoundingClientRect(), cs = getComputedStyle(el);
+        const m = mark.getBoundingClientRect();
+        return {
+          size: [Math.round(r.width), Math.round(r.height)],
+          offset: [Math.round(r.left - panel.left), Math.round(r.top - panel.top)],
+          inset: [Math.round(m.left - r.left), Math.round(m.top - r.top)],
+          background: cs.backgroundColor,
+          radius: parseFloat(cs.borderTopLeftRadius),
+        };
+      })(),
     },
     hero: {
       classic: hero.classList.contains('style-classic'),
@@ -56,10 +66,13 @@ const read = () => {
     const photo = await page.evaluate(read);
     await page.locator('.phone').screenshot({ path: 'verification/home-photo.png' });
 
-    // 品牌：比 codex 原值（44 / 49px）小，且更贴近左上角
-    assert.equal(photo.brand.markSize, '34px', `品牌字号应为 34px，实际 ${photo.brand.markSize}`);
-    assert(photo.brand.offset[0] <= 14, `品牌应贴近左边缘，实际 ${photo.brand.offset[0]}px`);
-    assert(photo.brand.offset[1] <= 24, `品牌应贴近上边缘，实际 ${photo.brand.offset[1]}px`);
+    // 品牌：比 codex 原值（+1 44px）更小，且收在一个与底色同色的圆角胶囊里
+    const capsule = photo.brand.capsule;
+    assert.equal(photo.brand.markSize, '28px', `品牌字号应为 28px，实际 ${photo.brand.markSize}`);
+    assert.equal(capsule.background, 'rgb(238, 244, 253)', `品牌胶囊底色应等于页面底色，实际 ${capsule.background}`);
+    assert(capsule.radius >= 20, `品牌胶囊应为圆角，实际 ${capsule.radius}px`);
+    assert(capsule.offset[0] <= 28 && capsule.offset[1] <= 28, `品牌胶囊应贴近面板左上角，实际 ${capsule.offset}`);
+    assert(photo.brand.markOffset[0] <= 40 && photo.brand.markOffset[1] <= 40, `品牌文字应贴在胶囊内，实际 ${photo.brand.markOffset}`);
     assert.equal(photo.style, 'photo');
     assert.equal(photo.toolbar.active, 'photo');
     assert(!photo.hero.classic && !photo.hero.captionShown && !photo.hero.badgeShown, '照片版不应显示落款与 +1 徽标');

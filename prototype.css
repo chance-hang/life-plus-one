@@ -22,6 +22,9 @@
   --pro-title: 700 34px/42px var(--font-ui);
   --pro-num: 700 16px/22px var(--font-ui);
   --pro-tap: 44px;
+  /* --pro-canvas-clear 是 --pro-canvas 的透明版本，改底色时两处要一起改 */
+  --pro-canvas-clear: rgba(238, 244, 253, 0);
+  --pro-ease: cubic-bezier(.22, 1, .36, 1);
 }
 
 /* ── 页面底色与留白 ───────────────────────────────
@@ -52,17 +55,81 @@
   text-align: left;
 }
 
-/* ── 首页品牌栏 ───────────────────────────────────
- * 字形与字重沿用 codex 原样，整体收小一档并贴近左上角。
- * 桌面面板里首个子元素的负外边距会被滚动容器夹住，所以靠页面留白上提。 */
-.phone .app-header { margin: -6px 0 18px; }
-.phone > .page-content.page-home { padding-top: 20px; }
-.phone .app-header .brand { gap: 11px; }
-.phone .app-header .brand > b { font-size: 34px; letter-spacing: -4px; padding-right: 3px; }
-.phone .app-header .brand > span { font-size: 12px; padding-left: 11px; }
-.phone .app-header .brand small { font-size: 8.5px; margin-top: 4px; letter-spacing: .8px; }
-.header-tools { gap: 4px; }
-.header-tools .icon-button { width: var(--pro-tap); height: var(--pro-tap); }
+/* ── 首页页眉：两个圆角浮块，滚动时向两侧角落收拢 ────────
+ * 容器自身不画底色（不再出现白色矩形），只有左右两个胶囊着色，
+ * 颜色取页面底色 --pro-canvas；::before 是一层同色柔化遮罩，既挡住
+ * 从下方滚过的内容，也保证内容不会从页眉顶端穿出（sticky top:0）。
+ * 负的左右外边距 = 页面留白 20px，让遮罩铺满面板整宽。 */
+.phone .app-header {
+  position: sticky;
+  /* --header-sticky-top 由 life.js 写入：页面顶部有固定横幅时避开它，否则为 0 */
+  top: var(--header-sticky-top, 0px);
+  z-index: 4;
+  margin: 0 -20px 14px;
+  /* 顶部留白放在页眉自己身上：sticky 元素无法越过父级内容盒上边，
+   * 若留在 .page-content 的 padding-top 上，贴顶后会留下一条露出内容的缝。 */
+  padding: 12px 20px 4px;
+  min-height: 0;
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+  isolation: isolate;
+}
+.phone .app-header::before {
+  content: '';
+  position: absolute;
+  /* 向上多铺一层，保证贴顶后页眉上方那条也不会有内容露出；
+   * 向下留一段渐隐，内容滚到页眉下方时是化开而不是被切一刀。 */
+  inset: calc(-1 * var(--header-sticky-top, 0px)) 0 -16px 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    var(--pro-canvas) 0,
+    var(--pro-canvas) 76%,
+    color-mix(in srgb, var(--pro-canvas) 76%, transparent) 86%,
+    color-mix(in srgb, var(--pro-canvas) 30%, transparent) 94%,
+    var(--pro-canvas-clear) 100%);
+}
+.phone > .page-content.page-home { padding-top: 0; }
+
+/* 两个胶囊：同底色 + 圆角 + 轻投影；transform-origin 贴外侧，缩放时朝角落收 */
+.phone .app-header .brand,
+.phone .app-header .header-tools {
+  min-height: 46px;
+  border-radius: 23px;
+  background: var(--pro-canvas);
+  box-shadow: 0 4px 14px rgba(43, 86, 135, .08);
+  transition: transform .34s var(--pro-ease), box-shadow .34s var(--pro-ease);
+}
+/* transform-origin 取外侧上角，缩放时整块朝那个角收进去 */
+.phone .app-header .brand { gap: 10px; padding: 6px 14px 6px 10px; transform-origin: left top; }
+.phone .app-header .header-tools { gap: 0; padding: 1px 3px; transform-origin: right top; }
+.phone .app-header .brand > b { font-size: 28px; line-height: 1; letter-spacing: -3px; padding-right: 3px; }
+.phone .app-header .brand > span { font-size: 11px; line-height: 14px; padding-left: 10px; }
+.phone .app-header .brand small {
+  display: block;
+  max-height: 10px;
+  font-size: 8px;
+  line-height: 10px;
+  margin-top: 3px;
+  letter-spacing: .7px;
+  overflow: hidden;
+  transition: max-height .3s var(--pro-ease), opacity .2s, margin-top .3s var(--pro-ease);
+}
+.phone .app-header .header-tools .icon-button { width: var(--pro-tap); height: var(--pro-tap); }
+.phone .app-header .header-tools .icon-button .icon { width: 19px; height: 19px; }
+
+/* 滚动后：整体缩到 8 成，左块往左上角、右块往右上角滑动，投影加深。
+ * 只用 transform 缩放，页眉在文档流里的高度不变，滚动时下方内容不会跳动。 */
+.phone .app-header.is-compact { min-height: 0; padding: 12px 20px 4px; background: transparent; border-bottom: 0; box-shadow: none; }
+.phone .app-header.is-compact .brand { transform: translate(-6px, -2px) scale(.8); box-shadow: 0 6px 18px rgba(43, 86, 135, .14); }
+.phone .app-header.is-compact .header-tools { transform: translate(6px, -2px) scale(.8); box-shadow: 0 6px 18px rgba(43, 86, 135, .14); }
+.phone .app-header.is-compact .brand small { max-height: 0; opacity: 0; margin-top: 0; }
+/* 收态只靠 scale 缩放，字号保持原值（覆盖 life.css 里的紧凑字号） */
+.phone .app-header.is-compact .brand > b { font-size: 28px; }
+.phone .app-header.is-compact .brand > span { font-size: 11px; }
+.phone .app-header.is-compact .header-tools .icon-button { width: var(--pro-tap); height: var(--pro-tap); }
+.phone .app-header.is-compact .header-tools .icon-button .icon { width: 19px; height: 19px; }
 .hello-line { display: none; }
 
 /* ── 首页卡片样式切换（照片版 / 简洁版） ──────────────
@@ -537,9 +604,6 @@
   .page-content { padding-inline: 20px; }
 }
 
-/* ── 页眉：不透明，滚动时不再透出下方内容 ──────────── */
-.phone .app-header { background: #fff; backdrop-filter: none; }
-
 /* ── 桌面预览壳：更接近手机的瘦长比例 ─────────────
  * 面板 460×591（近方形）→ 420×629，上下留白收紧。
  * 100dvh 里要扣掉 body 的 32px 顶距 + 24/18 的上下边距。 */
@@ -550,16 +614,7 @@
     height: calc(100dvh - 74px);
   }
 
-  /* 品牌栏贴近左上角；sticky 的 top 与 padding-top 保持一致，滚动时不遮挡内容 */
-  .phone .app-header { top: -16px; margin: -16px -24px 16px; padding: 16px 14px 10px; }
-  .phone > .page-content.page-home { padding-top: 16px; }
-
-  /* 滚动后的紧凑页眉：缩得更多，占的版面更少 */
-  .phone .app-header.is-compact { padding-top: 16px; padding-bottom: 4px; box-shadow: 0 4px 10px rgba(36, 76, 106, .06); }
-  .phone .app-header.is-compact .brand > b { font-size: 24px; letter-spacing: -3px; }
-  .phone .app-header.is-compact .brand > span { font-size: 11px; }
-  .phone .app-header.is-compact .header-tools .icon-button { width: 32px; height: 32px; min-width: 32px; min-height: 32px; }
-  .phone .app-header.is-compact .header-tools .icon-button .icon { width: 17px; height: 17px; }
+  /* 页眉在桌面面板内沿用同一套规则：sticky top:0，胶囊式左右两块 */
 }
 
 /* ── 心情选择行（原型 04 新增记录页） ──────────────── */

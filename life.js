@@ -118,17 +118,34 @@ function minePage() {
  return `${heading('我的人生收藏夹')}<div class="profile-card"><span class="profile-avatar" role="img" aria-label="我的头像"></span><h2>生活的收藏家</h2><p>Life Plus One · Since ${since}</p><p class="profile-motto">去看更大的世界，也看见更大的自己。</p></div><div class="stats four">${stats.map(([n,t])=>`<div><b>${n}</b><span>${t}</span></div>`).join('')}</div><div class="menu-list">${[['wishes','wish','我的清单'],['favorites','heart','我的收藏'],['places','place','我的足迹'],['numbers','numbers','数据统计'],['timeline','timeline','所有人生记录']].map(([p,i,t])=>`<button data-go="${p}">${icon(i)}<span>${t}</span>${icon('arrow')}</button>`).join('')}<button data-action="export">${icon('export')}<span>导出我的记录</span>${icon('arrow')}</button><button data-go="cover">${icon('home')}<span>回到进入封面</span>${icon('arrow')}</button></div><p class="privacy-copy">${icon('lock')} 这本人生收藏夹，只属于你。<small>体验版数据保存在当前浏览器，无账号与云同步。示例配图由 AI 生成。</small></p>`;
 }
 var details; // Registered by experience.js
-function render() { closeModal(); document.body.classList.toggle('on-cover',page==='cover'); const views={home,first:()=>collection('first'),food:()=>collection('food'),movie:()=>collection('movie'),wishes:wishesPage,timeline:()=>timelinePage(),search:()=>timelinePage(true),places:placesPage,numbers:numbersPage,mine:minePage,detail:details,favorites:()=>heading('我的收藏','那些想要一看再看的片刻。')+recordList(sorted().filter(r=>r.favorite))}; app.innerHTML=page==='cover'?cover():`<div class="app-backdrop"></div><aside class="desktop-aside">${brand()}<h2>生活有很多种，<br/>喜欢的都算数。</h2><p>记下此刻，也收藏未来的自己。</p><span class="aside-script">A More Colorful Life</span></aside><div class="phone"><div class="page-content${page==='home'?' page-home':''}">${(views[page] || home)()}</div>${nav()}</div>`; }
+function render() { closeModal(); document.body.classList.toggle('on-cover',page==='cover'); const views={home,first:()=>collection('first'),food:()=>collection('food'),movie:()=>collection('movie'),wishes:wishesPage,timeline:()=>timelinePage(),search:()=>timelinePage(true),places:placesPage,numbers:numbersPage,mine:minePage,detail:details,favorites:()=>heading('我的收藏','那些想要一看再看的片刻。')+recordList(sorted().filter(r=>r.favorite))}; app.innerHTML=page==='cover'?cover():`<div class="app-backdrop"></div><aside class="desktop-aside">${brand()}<h2>生活有很多种，<br/>喜欢的都算数。</h2><p>记下此刻，也收藏未来的自己。</p><span class="aside-script">A More Colorful Life</span></aside><div class="phone"><div class="page-content${page==='home'?' page-home':''}">${(views[page] || home)()}</div>${nav()}</div>`; requestAnimationFrame(syncAppHeader); }
 function go(p) { page=p; render(); window.scrollTo(0,0); }
-// Keep the homepage identity visible in the desktop panel without rerendering on scroll.
-document.addEventListener('scroll',e=>{
- if(!e.target.matches?.('.page-content'))return;
- const header=e.target.querySelector('.app-header');
+// 首页页眉滚动收拢：桌面端滚动发生在 .page-content 内，手机端滚动发生在窗口上，两种都要认。
+function headerScrollTop(){
+ const host=document.querySelector('.phone > .page-content');
+ if(host && host.scrollHeight>host.clientHeight+1)return host.scrollTop;
+ return window.scrollY || document.documentElement.scrollTop || 0;
+}
+// 页面顶部可能压着一条固定的验收横幅（.review-banner），页眉贴顶时要避开它：
+// 窗口滚动时按横幅实际高度下移；桌面面板内滚动时横幅不在面板上方，保持 0。
+function headerStickyTop(){
+ const host=document.querySelector('.phone > .page-content');
+ if(host && host.scrollHeight>host.clientHeight+1)return 0;
+ const banner=document.querySelector('.review-banner');
+ return banner?Math.round(banner.getBoundingClientRect().height):0;
+}
+function syncAppHeader(){
+ const header=document.querySelector('.phone .app-header');
  if(!header)return;
- // Separate thresholds prevent the header's height change from toggling it repeatedly.
- if(e.target.scrollTop>48)header.classList.add('is-compact');
- else if(e.target.scrollTop<8)header.classList.remove('is-compact');
-},{capture:true,passive:true});
+ document.documentElement.style.setProperty('--header-sticky-top',headerStickyTop()+'px');
+ const y=headerScrollTop();
+ // 两个阈值分开，避免页眉自身高度变化造成来回抖动。
+ if(y>56)header.classList.add('is-compact');
+ else if(y<12)header.classList.remove('is-compact');
+}
+syncAppHeader();
+document.addEventListener('scroll',syncAppHeader,{capture:true,passive:true});
+window.addEventListener('resize',syncAppHeader,{passive:true});
 function openModal(content, title='记录一个瞬间') { closeModal(); modalReturn=document.activeElement; app.inert=true; document.body.classList.add('modal-open'); const overlay=document.createElement('div'); overlay.id='overlay'; overlay.className='overlay'; overlay.innerHTML=`<section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-handle"></div><button class="icon-button sheet-close" data-action="close" aria-label="关闭">${icon('close')}</button>${content}</section>`; document.body.append(overlay); requestAnimationFrame(()=>overlay.querySelector('input,button')?.focus()); }
 function closeModal() { photoRequest++; photoLoading=false; $('#overlay')?.remove(); app.inert=false; document.body.classList.remove('modal-open'); modalReturn?.isConnected && modalReturn.focus(); }
 function openTypes() { const shot=['place','food','movie','first']; openModal(`<div class="sheet-title"><span class="handwritten">今天，</span><h2>想给人生加点什么？</h2><p>每一个小小的体验，都是更丰富的你。</p></div><div class="type-grid">${Object.entries(kinds).map(([k,[t,s]])=>`<button class="type-card type-${k}" data-type="${k}"><span class="type-shot${shot.includes(k)?'':' shot-plain'}" aria-hidden="true">${shot.includes(k)?'':icon(k)}</span><span class="type-copy"><strong>${t}</strong><small>${s}</small></span></button>`).join('')}</div><p class="sheet-foot">记录当下，也收藏未来的自己。</p>`,'选择记录类型'); }

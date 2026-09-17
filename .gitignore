@@ -2,3 +2,6 @@
 *.baiduyun.uploading.cfg
 Life_Plus_One_产品方案_*.docx
 *.log
+
+# 本地 Agent 记忆与临时工作区
+.workbuddy/

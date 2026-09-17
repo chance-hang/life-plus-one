@@ -1,4 +1,4 @@
-/* 桌面预览壳自查：面板比例 + 页眉（不透明 / 状态B紧凑态）
+/* 桌面预览壳自查：面板比例 + 页眉几何（页眉的详细契约见 verify-header.cjs）
  * 用法：先启动 serve.cjs，再 node verify-desktop-shell.cjs
  * 输出：verification/desktop-shell-top.png、desktop-shell-scrolled.png */
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'C:/Users/13403/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
@@ -48,10 +48,10 @@ const H = Number(process.env.SHELL_H || 703);
         },
       };
     });
-    console.log(`${W}x${H} 状态A `, JSON.stringify(await read()));
+    console.log(`${W}x${H} 滚动后 `, JSON.stringify(await read()));
     await page.evaluate(() => { document.querySelector('.page-content').scrollTop = 0; });
     await page.waitForTimeout(400);
-    console.log(`${W}x${H} 状态B `, JSON.stringify(await read()));
+    console.log(`${W}x${H} 未滚动 `, JSON.stringify(await read()));
     if (errors.length) throw new Error(`script errors: ${errors.join(' | ')}`);
     console.log('PASS 桌面壳检查完成');
   } finally { await browser.close(); }

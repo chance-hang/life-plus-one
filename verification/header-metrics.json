@@ -1,0 +1,368 @@
+{
+ "375": {
+  "rest": {
+   "scrollY": 0,
+   "pcScrollTop": 0,
+   "hostScrolls": false,
+   "stickyValue": 34,
+   "stickyExpected": 34,
+   "overflowing": false,
+   "header": {
+    "box": [
+     0,
+     34,
+     375,
+     62
+    ],
+    "viewportTop": 34,
+    "height": 62,
+    "position": "sticky",
+    "zIndex": "4",
+    "stickyTop": "34px",
+    "background": "rgba(0, 0, 0, 0)",
+    "veil": "linear-gradient(rgb(238, 244, 253) 0px, rgb(238, 244, 253) 76%, color(srgb 0.933333 0.956863 0.992157 / 0.76) 86%, color(srgb 0.933333 0.956863 0.992157 / 0.3) 94%, rgba(238, 244, 253, 0) 100%)",
+    "compact": false
+   },
+   "edges": {
+    "fromPanelLeft": 20,
+    "toPanelRight": 20
+   },
+   "brand": {
+    "box": [
+     20,
+     46,
+     168,
+     46
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px",
+    "padding": "6px 14px 6px 10px",
+    "smallHeight": 10,
+    "markSize": "28px"
+   },
+   "tools": {
+    "box": [
+     261,
+     46,
+     94,
+     46
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px"
+   },
+   "gap": {
+    "above": true,
+    "middle": true,
+    "brand": true,
+    "tools": true
+   },
+   "smallControls": []
+  },
+  "stuck": {
+   "scrollY": 320,
+   "pcScrollTop": 0,
+   "hostScrolls": false,
+   "stickyValue": 34,
+   "stickyExpected": 34,
+   "overflowing": false,
+   "header": {
+    "box": [
+     0,
+     34,
+     375,
+     62
+    ],
+    "viewportTop": 34,
+    "height": 62,
+    "position": "sticky",
+    "zIndex": "4",
+    "stickyTop": "34px",
+    "background": "rgba(0, 0, 0, 0)",
+    "veil": "linear-gradient(rgb(238, 244, 253) 0px, rgb(238, 244, 253) 76%, color(srgb 0.933333 0.956863 0.992157 / 0.76) 86%, color(srgb 0.933333 0.956863 0.992157 / 0.3) 94%, rgba(238, 244, 253, 0) 100%)",
+    "compact": true
+   },
+   "edges": {
+    "fromPanelLeft": 14,
+    "toPanelRight": 14
+   },
+   "brand": {
+    "box": [
+     14,
+     44,
+     134,
+     37
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px",
+    "padding": "6px 14px 6px 10px",
+    "smallHeight": 0,
+    "markSize": "28px"
+   },
+   "tools": {
+    "box": [
+     286,
+     44,
+     75,
+     37
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px"
+   },
+   "gap": {
+    "above": true,
+    "middle": true,
+    "brand": true,
+    "tools": true
+   },
+   "smallControls": [
+    "brand:134x37",
+    "icon-button:35x35",
+    "icon-button:35x35"
+   ]
+  }
+ },
+ "460": {
+  "rest": {
+   "scrollY": 0,
+   "pcScrollTop": 0,
+   "hostScrolls": false,
+   "stickyValue": 34,
+   "stickyExpected": 34,
+   "overflowing": false,
+   "header": {
+    "box": [
+     0,
+     34,
+     460,
+     62
+    ],
+    "viewportTop": 34,
+    "height": 62,
+    "position": "sticky",
+    "zIndex": "4",
+    "stickyTop": "34px",
+    "background": "rgba(0, 0, 0, 0)",
+    "veil": "linear-gradient(rgb(238, 244, 253) 0px, rgb(238, 244, 253) 76%, color(srgb 0.933333 0.956863 0.992157 / 0.76) 86%, color(srgb 0.933333 0.956863 0.992157 / 0.3) 94%, rgba(238, 244, 253, 0) 100%)",
+    "compact": false
+   },
+   "edges": {
+    "fromPanelLeft": 20,
+    "toPanelRight": 20
+   },
+   "brand": {
+    "box": [
+     20,
+     46,
+     168,
+     46
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px",
+    "padding": "6px 14px 6px 10px",
+    "smallHeight": 10,
+    "markSize": "28px"
+   },
+   "tools": {
+    "box": [
+     346,
+     46,
+     94,
+     46
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px"
+   },
+   "gap": {
+    "above": true,
+    "middle": true,
+    "brand": true,
+    "tools": true
+   },
+   "smallControls": []
+  },
+  "stuck": {
+   "scrollY": 320,
+   "pcScrollTop": 0,
+   "hostScrolls": false,
+   "stickyValue": 34,
+   "stickyExpected": 34,
+   "overflowing": false,
+   "header": {
+    "box": [
+     0,
+     34,
+     460,
+     62
+    ],
+    "viewportTop": 34,
+    "height": 62,
+    "position": "sticky",
+    "zIndex": "4",
+    "stickyTop": "34px",
+    "background": "rgba(0, 0, 0, 0)",
+    "veil": "linear-gradient(rgb(238, 244, 253) 0px, rgb(238, 244, 253) 76%, color(srgb 0.933333 0.956863 0.992157 / 0.76) 86%, color(srgb 0.933333 0.956863 0.992157 / 0.3) 94%, rgba(238, 244, 253, 0) 100%)",
+    "compact": true
+   },
+   "edges": {
+    "fromPanelLeft": 14,
+    "toPanelRight": 14
+   },
+   "brand": {
+    "box": [
+     14,
+     44,
+     134,
+     37
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px",
+    "padding": "6px 14px 6px 10px",
+    "smallHeight": 0,
+    "markSize": "28px"
+   },
+   "tools": {
+    "box": [
+     371,
+     44,
+     75,
+     37
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px"
+   },
+   "gap": {
+    "above": true,
+    "middle": true,
+    "brand": true,
+    "tools": true
+   },
+   "smallControls": [
+    "brand:134x37",
+    "icon-button:35x35",
+    "icon-button:35x35"
+   ]
+  }
+ },
+ "1440": {
+  "rest": {
+   "scrollY": 0,
+   "pcScrollTop": 0,
+   "hostScrolls": true,
+   "stickyValue": 0,
+   "stickyExpected": 56,
+   "overflowing": false,
+   "header": {
+    "box": [
+     808,
+     56,
+     420,
+     62
+    ],
+    "viewportTop": 56,
+    "height": 62,
+    "position": "sticky",
+    "zIndex": "4",
+    "stickyTop": "0px",
+    "background": "rgba(0, 0, 0, 0)",
+    "veil": "linear-gradient(rgb(238, 244, 253) 0px, rgb(238, 244, 253) 76%, color(srgb 0.933333 0.956863 0.992157 / 0.76) 86%, color(srgb 0.933333 0.956863 0.992157 / 0.3) 94%, rgba(238, 244, 253, 0) 100%)",
+    "compact": false
+   },
+   "edges": {
+    "fromPanelLeft": 20,
+    "toPanelRight": 20
+   },
+   "brand": {
+    "box": [
+     828,
+     68,
+     168,
+     46
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px",
+    "padding": "6px 14px 6px 10px",
+    "smallHeight": 10,
+    "markSize": "28px"
+   },
+   "tools": {
+    "box": [
+     1114,
+     68,
+     94,
+     46
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px"
+   },
+   "gap": {
+    "above": false,
+    "middle": true,
+    "brand": true,
+    "tools": true
+   },
+   "smallControls": []
+  },
+  "stuck": {
+   "scrollY": 0,
+   "pcScrollTop": 320,
+   "hostScrolls": true,
+   "stickyValue": 0,
+   "stickyExpected": 56,
+   "overflowing": false,
+   "header": {
+    "box": [
+     808,
+     56,
+     420,
+     62
+    ],
+    "viewportTop": 56,
+    "height": 62,
+    "position": "sticky",
+    "zIndex": "4",
+    "stickyTop": "0px",
+    "background": "rgba(0, 0, 0, 0)",
+    "veil": "linear-gradient(rgb(238, 244, 253) 0px, rgb(238, 244, 253) 76%, color(srgb 0.933333 0.956863 0.992157 / 0.76) 86%, color(srgb 0.933333 0.956863 0.992157 / 0.3) 94%, rgba(238, 244, 253, 0) 100%)",
+    "compact": true
+   },
+   "edges": {
+    "fromPanelLeft": 14,
+    "toPanelRight": 14
+   },
+   "brand": {
+    "box": [
+     822,
+     66,
+     134,
+     37
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px",
+    "padding": "6px 14px 6px 10px",
+    "smallHeight": 0,
+    "markSize": "28px"
+   },
+   "tools": {
+    "box": [
+     1139,
+     66,
+     75,
+     37
+    ],
+    "background": "rgb(238, 244, 253)",
+    "radius": "23px"
+   },
+   "gap": {
+    "above": false,
+    "middle": true,
+    "brand": true,
+    "tools": true
+   },
+   "smallControls": [
+    "brand:134x37",
+    "icon-button:35x35",
+    "icon-button:35x35"
+   ]
+  }
+ }
+}
