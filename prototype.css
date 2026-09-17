@@ -248,12 +248,17 @@
 .banner-copy p { font: 500 13px/20px var(--font-ui); color: rgba(255, 255, 255, .86); }
 /* 落款：并入卡片的排版系统，不再自带一套边距与字体。
  * ① 位置遵守卡片的统一内边距 --pro-inset（原来是 16/14，比正文的 20 更贴边）；
- * ② 字体族与正文统一（var(--font-ui)），只保留斜体 + 微倾做落款感。
- * 这样「文字→卡片边缘」的距离在全卡、两版之间都是同一套数字。 */
+ * ② 字体族与正文统一（var(--font-ui)），只保留斜体 + 微倾做落款感；
+ * ③ 倾斜量要补偿：落款绕右下角转 -7°，左端会跟着下沉「宽度×sin7°」。
+ *    "A More Colorful Life" 在 13px 斜体下宽 128.8px → 下沉 15.7px。
+ *    只写 bottom: 20px 时，量未旋转的盒子是 20px，但眼睛看到的左端只剩 4.3px
+ *    —— 也就是「看着比正文更贴边」。把这段下沉补进 bottom，
+ *    旋转后整块墨迹的最低点才正好落在距卡片底 20px 的那条线上。
+ * transform-origin 取 right bottom：右下角是旋转轴心，右端的 20px 不会因倾斜而漂移。 */
 .banner-caption {
   position: absolute;
   right: var(--pro-inset);
-  bottom: var(--pro-inset);
+  bottom: calc(var(--pro-inset) + 15.7px);
   font: italic 13px/20px var(--font-ui);
   color: rgba(255, 255, 255, .8);
   transform: rotate(-7deg);

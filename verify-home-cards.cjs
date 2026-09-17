@@ -44,6 +44,22 @@ const read = () => {
   };
   const copyEl = hero.querySelector('.banner-copy');
   const metricsOf = el => { const cs = getComputedStyle(el); return `${cs.fontSize} | ${cs.lineHeight}`; };
+  // 落款是斜的：光量未旋转的盒子不够，必须按「旋转后的四边形」算，否则量到的是假距离。
+  // 旋转轴心 = transform-origin（right bottom），局部点 p 变换后 = origin + M·(p - origin)。
+  const rotatedQuad = el => {
+    if (!el) return null;
+    const cs = getComputedStyle(el);
+    const m = new DOMMatrix(cs.transform === 'none' ? '' : cs.transform);
+    const saved = el.style.transform;
+    el.style.transform = 'none';
+    const r = el.getBoundingClientRect();
+    el.style.transform = saved;
+    const ox = r.width, oy = r.height;   // transform-origin: right bottom
+    return [[0, 0], [r.width, 0], [r.width, r.height], [0, r.height]].map(([x, y]) => ({
+      x: r.left - heroBox.left + ox + m.a * (x - ox) + m.c * (y - oy),
+      y: r.top - heroBox.top + oy + m.b * (x - ox) + m.d * (y - oy),
+    }));
+  };
   const swapBox = swap ? swap.getBoundingClientRect() : null;
   return {
     panel: [Math.round(panel.width), Math.round(panel.height)],
@@ -89,6 +105,17 @@ const read = () => {
         note: edgeOf(hero.querySelector('.banner-copy p')),
         caption: edgeOf(caption),
       },
+      // 落款「看得见」的距离：按旋转后的四边形算（斜体落款绕右下角转过 -7°）
+      captionSeen: (() => {
+        const q = rotatedQuad(caption);
+        if (!q) return null;
+        const n = v => Math.round(v * 10) / 10;
+        return {
+          right: n(heroBox.width - Math.max(...q.map(p => p.x))),
+          bottom: n(heroBox.height - Math.max(...q.map(p => p.y))),
+          left: n(Math.min(...q.map(p => p.x))),
+        };
+      })(),
     },
     records: state.records.length,
     swap: {
@@ -232,9 +259,14 @@ const probe = () => {
         }
       }
     }
-    // 落款：只有天数卡有，所以它到边的距离必须等于内边距，而不是自己留的 16/14
-    assert.equal(classic.hero.geo.caption.right, inset, `天数卡落款右边距应和正文一致（${inset}px），实际 ${classic.hero.geo.caption.right}`);
-    assert.equal(classic.hero.geo.caption.bottom, inset, `天数卡落款下边距应和正文用同一套数值（${inset}px），实际 ${classic.hero.geo.caption.bottom}`);
+    // 落款：只有天数卡有。它是斜的，所以要按「旋转后看得见的那块」算距离：
+    // 右端必须和内边距一样是 20px；左端因倾斜会下沉，下沉量（落款宽度×sin7°≈15.7px）
+    // 已经在 CSS 里补掉了，所以旋转后整块的最低点同样落在 20px 线上。
+    // 只量未旋转的盒子会漏掉这 15.7px —— 那正是「看着比正文更贴边」的来源。
+    assert.equal(classic.hero.captionSeen.right, inset, `天数卡落款右端距卡片右应为 ${inset}px，实际 ${classic.hero.captionSeen.right}`);
+    assert(Math.abs(classic.hero.captionSeen.bottom - inset) <= 0.5,
+      `天数卡落款（倾斜后）最低点距卡片底应为 ${inset}px，实际 ${classic.hero.captionSeen.bottom}`);
+    assert.equal(classic.hero.geo.caption.right, inset, `天数卡落款盒子右边距应为 ${inset}px，实际 ${classic.hero.geo.caption.right}`);
     // 落款允许斜体，但字号/行高/字体族要和瞬间卡的结语同一套（原来 Georgia, serif 是差异来源）
     const noteParts = photo.hero.type.note.split(' | ');
     const expectCaptionMetrics = `${noteParts[0]} | ${noteParts[1]} | ${noteParts[4]}`;
@@ -290,6 +322,10 @@ const probe = () => {
     const mobile = await page.evaluate(read);
     assert.equal(mobile.modules.length, 6);
     assert(mobile.swap.exists && mobile.swap.insideCard, '手机视口下切换按钮应仍在卡片右上角');
+    // 手机视口下卡片变窄，正文与落款仍要落在同一套内边距上
+    assert.equal(mobile.hero.captionSeen.right, 20, `375 视口下落款右端距卡片右应为 20px，实际 ${mobile.hero.captionSeen.right}`);
+    assert(Math.abs(mobile.hero.captionSeen.bottom - 20) <= 0.5, `375 视口下落款最低点距卡片底应为 20px，实际 ${mobile.hero.captionSeen.bottom}`);
+    assert.equal(mobile.hero.geo.copy.left, 20, `375 视口下正文左边距应为 20px，实际 ${mobile.hero.geo.copy.left}`);
 
     // —— 回归：老示例数据（生日为空）要自动补上生日，卡片不能再退回「收藏了多少个瞬间」 ——
     const legacy = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1536, height: 703 } });
