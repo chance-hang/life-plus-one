@@ -1,9 +1,11 @@
 /* 首页自查：无边框页眉品牌块 + 卡片两种格式
- * 照片版 = 收藏瞬间卡（你已经收藏了 N 个瞬间），简洁版 = 人生天数卡（你已经生活了 N 天 + 落款）
- * 两版内容刻意不同，但字体格式必须逐项一致
+ * 照片版 = 收藏瞬间卡（你已经收藏了 N 个瞬间），简洁版 = 人生天数卡（你已经生活了 N 天）
+ * 两版内容刻意不同，但字体格式必须逐项一致；落款「A More Colorful Life」是卡片署名，
+ * 两版都在右下角，位置/字体/颜色/光晕逐项一致（可读性另见 verify-caption-pixels.py）
  * + 右上角双箭头切换（横向滑动、不整页刷新）+ 问候行常驻 + 六宫格文案
  * 用法：先启动 serve.cjs，再 node verify-home-cards.cjs
- * 输出：verification/home-photo.png、home-classic.png、home-swap-mid.png、home-375-{photo,classic}.png */
+ * 输出：verification/home-photo.png、home-classic.png、home-swap-mid.png、home-375-{photo,classic}.png
+ *      verification/caption-{photo,classic}[-bg].png、caption-metrics.json（供像素复核） */
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'C:/Users/13403/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const assert = require('node:assert');
 const fs = require('node:fs');
@@ -78,6 +80,12 @@ const read = () => {
     hero: {
       classic: hero.classList.contains('style-classic'),
       height: Math.round(heroBox.height),
+      width: Math.round(heroBox.width),
+      // 正文块高度：结语折行时不能变（变了垂直居中的整体位置就会跳）
+      copyHeight: Math.round(hero.querySelector('.banner-copy').getBoundingClientRect().height),
+      // 结语右侧给落款让出的道宽。注意：padding 不改变块级元素的外框，
+      // 所以 geo.note.right 永远是内边距（20），要让道只能看这个值。
+      notePad: getComputedStyle(hero.querySelector('.banner-copy p')).paddingRight,
       strong: strong.textContent.trim(),
       strongColor: getComputedStyle(strong).color,
       label: hero.querySelector('.banner-copy > span').textContent.trim(),
@@ -86,6 +94,9 @@ const read = () => {
       badgeText: badge ? badge.textContent.trim() : null,
       captionText: caption ? caption.textContent.trim() : null,
       captionShown: caption ? getComputedStyle(caption).display !== 'none' : false,
+      // 落款压在照片上，颜色必须是「实色 + 深色光晕」，不能是半透明（半透明会把亮度让给照片）
+      captionColor: caption ? getComputedStyle(caption).color : null,
+      captionShadow: caption ? getComputedStyle(caption).textShadow : null,
       badgeShown: badge ? getComputedStyle(badge).display !== 'none' : false,
       // 两版共有的四段文字，字体格式必须一模一样（落款只有天数卡有，单独看）
       type: {
@@ -158,6 +169,73 @@ const probe = () => {
   document.querySelector('.banner-slide')?.setAttribute('data-probe', '1');
 };
 
+/* 落款几何 + 渲染参数：给 verify-caption-pixels.py 用（那边按这个四边形去像素里找墨迹）。
+ * 四边形是按 transform-origin 真转过一遍的，不是未旋转的外接框 —— 落款带 -7° 倾斜。 */
+const readCaption = () => {
+  const hero = document.querySelector('.life-banner');
+  const cap = hero.querySelector('.banner-caption');
+  const hb = hero.getBoundingClientRect();
+  const cs = getComputedStyle(cap);
+  const m = new DOMMatrix(cs.transform === 'none' ? '' : cs.transform);
+  const saved = cap.style.transform;
+  cap.style.transform = 'none';
+  const r = cap.getBoundingClientRect();
+  cap.style.transform = saved;
+  const ox = r.width, oy = r.height;
+  const quad = [[0, 0], [r.width, 0], [r.width, r.height], [0, r.height]].map(([x, y]) => ({
+    x: +(r.left - hb.left + ox + m.a * (x - ox) + m.c * (y - oy)).toFixed(2),
+    y: +(r.top - hb.top + oy + m.b * (x - ox) + m.d * (y - oy)).toFixed(2),
+  }));
+  return {
+    card: { w: +hb.width.toFixed(2), h: +hb.height.toFixed(2) },
+    quad,
+    color: cs.color,
+    textShadow: cs.textShadow,
+    font: `${cs.fontStyle} ${cs.fontSize}/${cs.lineHeight} ${cs.fontFamily.split(',')[0]}`,
+    text: cap.textContent.trim(),
+    zIndex: cs.zIndex,
+    overlay: getComputedStyle(hero, ':after').backgroundImage.slice(0, 60),
+  };
+};
+
+/* 正文墨迹（Range 的每行矩形，而不是盒子）与落款旋转四边形：
+ * 窄卡下结语会折行，盒子量不出「折到第二行的那半句」，只有 Range 才算得准。 */
+const clashRead = () => {
+  const hero = document.querySelector('.life-banner');
+  const hb = hero.getBoundingClientRect();
+  const n = v => Math.round(v * 10) / 10;
+  const cap = hero.querySelector('.banner-caption');
+  const cs = getComputedStyle(cap);
+  const m = new DOMMatrix(cs.transform === 'none' ? '' : cs.transform);
+  const saved = cap.style.transform;
+  cap.style.transform = 'none';
+  const r = cap.getBoundingClientRect();
+  cap.style.transform = saved;
+  const ox = r.width, oy = r.height;
+  const quad = [[0, 0], [r.width, 0], [r.width, r.height], [0, r.height]].map(([x, y]) => ({
+    x: r.left - hb.left + ox + m.a * (x - ox) + m.c * (y - oy),
+    y: r.top - hb.top + oy + m.b * (x - ox) + m.d * (y - oy),
+  }));
+  const inkOf = sel => {
+    const rg = document.createRange();
+    rg.selectNodeContents(hero.querySelector(sel));
+    const rects = [...rg.getClientRects()];
+    return rects.length
+      ? [n(Math.min(...rects.map(t => t.left)) - hb.left), n(Math.min(...rects.map(t => t.top)) - hb.top),
+         n(Math.max(...rects.map(t => t.right)) - hb.left), n(Math.max(...rects.map(t => t.bottom)) - hb.top)]
+      : null;
+  };
+  const copyBox = hero.querySelector('.banner-copy').getBoundingClientRect();
+  return {
+    card: [n(hb.width), n(hb.height)],
+    caption: [n(Math.min(...quad.map(p => p.x))), n(Math.min(...quad.map(p => p.y))), n(Math.max(...quad.map(p => p.x))), n(Math.max(...quad.map(p => p.y)))],
+    label: inkOf('.banner-copy > span'),
+    numbers: inkOf('.banner-copy > div'),
+    note: inkOf('.banner-copy p'),
+    copy: [n(copyBox.top - hb.top), n(copyBox.height)],
+  };
+};
+
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.BROWSER_PATH || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: true });
   const errors = [];
@@ -201,7 +279,10 @@ const probe = () => {
     assert.equal(photo.hero.unit, '个瞬间', `照片版单位应为「个瞬间」，实际 ${photo.hero.unit}`);
     assert.equal(photo.hero.note, '继续出发，去体验更多可能。', `照片版结语不符，实际 ${photo.hero.note}`);
     assert.equal(photo.hero.strong, photo.records.toLocaleString(), `照片版大数字应是收藏条数，实际 ${photo.hero.strong}`);
-    assert(!photo.hero.badgeShown && !photo.hero.captionShown, '+1 徽标与落款属于人生天数卡，照片版不带');
+    assert(!photo.hero.badgeShown, '+1 徽标只属于人生天数卡，照片版不带');
+    // 落款是卡片署名，不属于文案：照片版也要有（用户要求「固定放在每张卡片图片的右下角」）
+    assert(photo.hero.captionShown && photo.hero.captionText === 'A More Colorful Life',
+      `照片版也要在右下角放落款，实际 ${JSON.stringify([photo.hero.captionShown, photo.hero.captionText])}`);
 
     // 六宫格沿用 codex 的说明文案
     const expectModules = ['人生清单|3 件小小心愿', '去过的地方|3 座城市的故事', '第一次|2 次勇敢尝试', '美食|1 份味觉记忆', '电影|0 场光影之旅', '人生数字|关于我的小小宇宙'];
@@ -230,6 +311,13 @@ const probe = () => {
     assert(Number(classic.hero.strong.replace(/,/g, '')) > 10000, `示例数据应落在人生天数上，实际 ${classic.hero.strong}`);
     assert(classic.hero.badgeShown && classic.hero.badgeText === '+1', `天数卡应带 +1 徽标，实际 ${JSON.stringify([classic.hero.badgeShown, classic.hero.badgeText])}`);
     assert(classic.hero.captionShown && classic.hero.captionText === 'A More Colorful Life', `天数卡应带落款，实际 ${JSON.stringify([classic.hero.captionShown, classic.hero.captionText])}`);
+    // 落款作为「卡片署名」，两版的位置 / 字体 / 颜色 / 光晕必须逐项一致：
+    // 它不跟文案走，也不跟卡片底色走（两版都压在照片上）
+    assert.deepEqual(classic.hero.captionSeen, photo.hero.captionSeen,
+      `两版落款位置必须一致：瞬间卡 ${JSON.stringify(photo.hero.captionSeen)} vs 天数卡 ${JSON.stringify(classic.hero.captionSeen)}`);
+    assert.equal(classic.hero.captionColor, photo.hero.captionColor, `两版落款颜色必须一致：${photo.hero.captionColor} vs ${classic.hero.captionColor}`);
+    assert.equal(classic.hero.captionShadow, photo.hero.captionShadow, `两版落款光晕必须一致：${photo.hero.captionShadow} vs ${classic.hero.captionShadow}`);
+    assert.equal(classic.hero.captionMetrics, photo.hero.captionMetrics, `两版落款字体必须一致：${photo.hero.captionMetrics} vs ${classic.hero.captionMetrics}`);
     // 两版内容刻意不同：一张数瞬间、一张数天数
     assert.notEqual(classic.hero.unit, photo.hero.unit, `两版应是不同口径的内容，实际都是 ${classic.hero.unit}`);
     assert.notEqual(classic.hero.strong, photo.hero.strong, '两版的大数字不应相同（瞬间数 vs 人生天数）');
@@ -259,19 +347,38 @@ const probe = () => {
         }
       }
     }
-    // 落款：只有天数卡有。它是斜的，所以要按「旋转后看得见的那块」算距离：
+    // 结语要不要给落款让道，由卡片宽度决定（@container 量的是 .banner-wrap 的外形宽度）：
+    // 卡宽 380（桌面面板）时结语墨迹离落款还有余量，不让；再窄就必须让，否则会压到落款身上。
+    const LANE = 134;
+    const laneOn = photo.hero.notePad !== '0px';
+    assert.equal(laneOn, photo.hero.width <= 379,
+      `「要不要给落款让道」应由卡片宽度决定（卡宽 ${photo.hero.width}，让道=${laneOn}）`);
+    assert.equal(classic.hero.notePad, photo.hero.notePad, '两版结语的让道宽度必须一致');
+    if (laneOn) assert.equal(photo.hero.notePad, `${LANE}px`, `让道宽度应为 ${LANE}px，实际 ${photo.hero.notePad}`);
+    // 结语折行不能撑高正文块：正文块一高，垂直居中就会把大数字顶上去，
+    // 而另一张卡的结语没折行 —— 来回切换时数字会上下跳。height:20px 把它钉死。
+    assert.equal(photo.hero.copyHeight, classic.hero.copyHeight,
+      `两版正文块高度必须一致（结语折行不得撑高它）：${photo.hero.copyHeight} vs ${classic.hero.copyHeight}`);
+    // 落款：两版都固定在右下角。它是斜的，所以要按「旋转后看得见的那块」算距离：
     // 右端必须和内边距一样是 20px；左端因倾斜会下沉，下沉量（落款宽度×sin7°≈15.7px）
     // 已经在 CSS 里补掉了，所以旋转后整块的最低点同样落在 20px 线上。
     // 只量未旋转的盒子会漏掉这 15.7px —— 那正是「看着比正文更贴边」的来源。
-    assert.equal(classic.hero.captionSeen.right, inset, `天数卡落款右端距卡片右应为 ${inset}px，实际 ${classic.hero.captionSeen.right}`);
-    assert(Math.abs(classic.hero.captionSeen.bottom - inset) <= 0.5,
-      `天数卡落款（倾斜后）最低点距卡片底应为 ${inset}px，实际 ${classic.hero.captionSeen.bottom}`);
-    assert.equal(classic.hero.geo.caption.right, inset, `天数卡落款盒子右边距应为 ${inset}px，实际 ${classic.hero.geo.caption.right}`);
-    // 落款允许斜体，但字号/行高/字体族要和瞬间卡的结语同一套（原来 Georgia, serif 是差异来源）
+    for (const [name, card] of [['瞬间卡', photo], ['天数卡', classic]]) {
+      assert.equal(card.hero.captionSeen.right, inset, `${name}落款右端距卡片右应为 ${inset}px，实际 ${card.hero.captionSeen.right}`);
+      assert(Math.abs(card.hero.captionSeen.bottom - inset) <= 0.5,
+        `${name}落款（倾斜后）最低点距卡片底应为 ${inset}px，实际 ${card.hero.captionSeen.bottom}`);
+      assert.equal(card.hero.geo.caption.right, inset, `${name}落款盒子右边距应为 ${inset}px，实际 ${card.hero.geo.caption.right}`);
+    }
+    // 落款允许斜体，但字号/行高/字体族要和结语同一套（原来 Georgia, serif 是差异来源）
     const noteParts = photo.hero.type.note.split(' | ');
     const expectCaptionMetrics = `${noteParts[0]} | ${noteParts[1]} | ${noteParts[4]}`;
-    assert.equal(classic.hero.captionMetrics, expectCaptionMetrics,
-      `落款的字号/行高/字体族应与结语一致：期望 ${expectCaptionMetrics}，实际 ${classic.hero.captionMetrics}`);
+    for (const [name, card] of [['瞬间卡', photo], ['天数卡', classic]]) {
+      assert.equal(card.hero.captionMetrics, expectCaptionMetrics,
+        `${name}落款的字号/行高/字体族应与结语一致：期望 ${expectCaptionMetrics}，实际 ${card.hero.captionMetrics}`);
+      // 白字不透明 + 至少两层深色光晕：半透明字会把亮度让给身后的照片，一亮就看不见
+      assert(/^rgb\(255, 255, 255\)$/.test(card.hero.captionColor), `${name}落款应为纯白实色，实际 ${card.hero.captionColor}`);
+      assert((card.hero.captionShadow.match(/rgba\(/g) || []).length >= 2, `${name}落款应有≥2 层深色光晕，实际 ${card.hero.captionShadow}`);
+    }
 
     // —— 横向滑动：动画中轨道里应同时存在两张卡，且轨道发生横向位移 ——
     const animated = await browser.newContext({ reducedMotion: 'no-preference', viewport: { width: 1536, height: 703 } });
@@ -326,6 +433,50 @@ const probe = () => {
     assert.equal(mobile.hero.captionSeen.right, 20, `375 视口下落款右端距卡片右应为 20px，实际 ${mobile.hero.captionSeen.right}`);
     assert(Math.abs(mobile.hero.captionSeen.bottom - 20) <= 0.5, `375 视口下落款最低点距卡片底应为 20px，实际 ${mobile.hero.captionSeen.bottom}`);
     assert.equal(mobile.hero.geo.copy.left, 20, `375 视口下正文左边距应为 20px，实际 ${mobile.hero.geo.copy.left}`);
+    // 窄卡下结语要给落款让道，但正文块高度不能被折行撑高（否则大数字会跳）
+    assert.equal(mobile.hero.notePad, `${LANE}px`, `375 视口下结语应给落款让出 ${LANE}px，实际 ${mobile.hero.notePad}`);
+    assert.equal(mobile.hero.copyHeight, photo.hero.copyHeight,
+      `375 视口下正文块高度应与桌面一致（结语折行不得撑高它）：桌面 ${photo.hero.copyHeight} vs 手机 ${mobile.hero.copyHeight}`);
+
+    // —— 正文与落款在任何宽度下都不许撞 ——
+    // 落款固定在右下角，而结语是左对齐的一行字：卡一窄，两者就会在同一片区域里相遇。
+    // 窄卡下结语会让道并折行，折出来的第二行也得避开落款（所以量的是 Range 的墨迹，
+    // 不是盒子 —— 盒子量不到「折到第二行的那半句」）。
+    for (const w of [320, 360, 375, 393, 420, 480, 1440]) {
+      const vp = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: w, height: 900 } });
+      const vpPage = await vp.newPage();
+      vpPage.on('pageerror', e => errors.push(e.message));
+      await vpPage.goto(url);
+      await vpPage.locator('.modules').waitFor();
+      await vpPage.evaluate(() => { try { localStorage.removeItem('life-plus-one-review-home-style'); } catch {} });
+      const seen = {};
+      for (const style of ['photo', 'classic']) {
+        await vpPage.evaluate(s => setHomeStyle(s), style);
+        await vpPage.waitForTimeout(200);
+        seen[style] = await vpPage.evaluate(clashRead);
+      }
+      await vp.close();
+      for (const style of ['photo', 'classic']) {
+        const g = seen[style];
+        for (const key of ['label', 'numbers', 'note']) {
+          const box = g[key], cap = g.caption;
+          const gapX = Math.max(cap[0] - box[2], box[0] - cap[2]);
+          const gapY = Math.max(cap[1] - box[3], box[1] - cap[3]);
+          assert(gapX > 0 || gapY > 0,
+            `${w}px 视口 ${style} 版：正文「${key}」与落款撞在一起（正文 ${JSON.stringify(box)} vs 落款 ${JSON.stringify(cap)}）`);
+        }
+      }
+      // 两版正文的位置必须逐项一致：结语折行只许往下长，不许把大数字顶上去
+      assert.deepEqual(seen.photo.copy, seen.classic.copy,
+        `${w}px 视口下两版正文块位置/高度应一致：${JSON.stringify(seen.photo.copy)} vs ${JSON.stringify(seen.classic.copy)}`);
+      // 只比竖直位置：两版文案长度本就不同，横向宽度天然不一样
+      for (const key of ['label', 'numbers']) {
+        assert.equal(seen.photo[key][1], seen.classic[key][1],
+          `${w}px 视口下两版「${key}」顶边应一致：${JSON.stringify(seen.photo[key])} vs ${JSON.stringify(seen.classic[key])}`);
+      }
+      assert.equal(seen.photo.note[1], seen.classic.note[1],
+        `${w}px 视口下两版结语的起始行应齐平：${seen.photo.note[1]} vs ${seen.classic.note[1]}`);
+    }
 
     // —— 回归：老示例数据（生日为空）要自动补上生日，卡片不能再退回「收藏了多少个瞬间」 ——
     const legacy = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1536, height: 703 } });
@@ -347,6 +498,33 @@ const probe = () => {
     assert.equal(migrated.hero.unit, '天', `迁移后单位应为「天」，实际 ${migrated.hero.unit}`);
     assert(/^\d{1,3}(,\d{3})+$/.test(migrated.hero.strong), `迁移后应显示人生天数，实际 ${migrated.hero.strong}`);
     await legacy.close();
+
+    // —— 落款可读性复核的出图：两版各截「有落款 / 无落款」两张，×2 缩放渲染 ——
+    // 两张之差 = 落款真正画出来的墨迹（含光晕）；「无落款」那张就是它身后的原始照片。
+    // 交给 verify-caption-pixels.py 算局部对比度，判定「压在照片上还看不看得清」。
+    const pixelCtx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1536, height: 703 }, deviceScaleFactor: 2 });
+    const pixelPage = await pixelCtx.newPage();
+    pixelPage.on('pageerror', e => errors.push(e.message));
+    await pixelPage.goto(url);
+    await pixelPage.locator('.modules').waitFor();
+    await pixelPage.evaluate(() => { try { localStorage.removeItem('life-plus-one-review-home-style'); } catch {} });
+    const capMetrics = { dsf: 2 };
+    for (const style of ['photo', 'classic']) {
+      await pixelPage.evaluate(s => setHomeStyle(s), style);
+      await pixelPage.waitForTimeout(200);
+      capMetrics[style] = await pixelPage.evaluate(readCaption);
+      await pixelPage.locator('.life-banner').screenshot({ path: `verification/caption-${style}.png` });
+      await pixelPage.evaluate(() => { document.querySelector('.banner-caption').style.visibility = 'hidden'; });
+      await pixelPage.waitForTimeout(150);
+      await pixelPage.locator('.life-banner').screenshot({ path: `verification/caption-${style}-bg.png` });
+      await pixelPage.evaluate(() => { document.querySelector('.banner-caption').style.visibility = ''; });
+    }
+    await pixelCtx.close();
+    fs.writeFileSync('verification/caption-metrics.json', JSON.stringify(capMetrics, null, 2));
+    assert.deepEqual(capMetrics.classic.quad, capMetrics.photo.quad, '两版落款在卡片里的四边形必须完全一致');
+    assert.equal(capMetrics.classic.color, capMetrics.photo.color, '两版落款颜色必须一致');
+    assert.equal(capMetrics.classic.textShadow, capMetrics.photo.textShadow, '两版落款光晕必须一致');
+    assert.equal(capMetrics.classic.zIndex, capMetrics.photo.zIndex, '两版落款的层级必须一致');
 
     if (errors.length) throw new Error(`script errors: ${errors.join(' | ')}`);
     console.log('照片版  ', JSON.stringify(photo.hero), JSON.stringify(photo.brand.block), JSON.stringify(photo.swap));

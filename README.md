@@ -17,7 +17,8 @@
 | `node verify-experience.cjs` | 77 组路由/视口检查 + 5 组短视口编辑器检查、CRUD、草稿守卫、存储失败重试、Prod 隔离 |
 | `node verify-header.cjs` | 页眉契约：375/460/1440 三档的静止与滚动两态（透明容器、同底色圆角胶囊、等高、触控区、贴顶位置、收拢幅度） |
 | `python verify-header-pixels.py` | 页眉像素复核：滚动后内容不得透过页眉（含关掉遮罩的对照组） |
-| `node verify-home-cards.cjs` | 首页 hero：品牌胶囊 + 两种卡片格式 + 切换持久化 + 六宫格文案 + 文字到卡片边缘的距离与字体一致性（含旋转元素的真实可见距离） |
+| `node verify-home-cards.cjs` | 首页 hero：品牌胶囊 + 两种卡片格式 + 切换持久化 + 六宫格文案 + 文字到卡片边缘的距离与字体一致性（含旋转元素的真实可见距离）+ 落款「A More Colorful Life」在两版的位置/字体/颜色/光晕一致 + 7 档宽度下正文与落款不相撞、两版正文位置不因折行而跳 |
+| `python verify-caption-pixels.py` | 落款像素复核：把它从照片里「减」出来（有/无落款两张图做差），逐像素量局部对比度 —— 白字+深色光晕压在照片上的可读性，DOM 属性量不出来 |
 | `node verify-desktop-shell.cjs` | 桌面预览壳面板比例与页眉几何 |
 
 所有脚本默认打 `http://127.0.0.1:4186`，可用 `REVIEW_URL` 覆盖（例如 `REVIEW_URL=http://127.0.0.1:4173 node verify-ui.cjs`）。

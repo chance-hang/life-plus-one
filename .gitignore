@@ -5,3 +5,10 @@ Life_Plus_One_产品方案_*.docx
 
 # 本地 Agent 记忆与临时工作区
 .workbuddy/
+
+# 落款像素复核的中间产物（每次跑 verify-caption-pixels.py 重新生成，不进版本库）
+verification/caption-photo.png
+verification/caption-photo-bg.png
+verification/caption-classic.png
+verification/caption-classic-bg.png
+verification/caption-metrics.json
