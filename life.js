@@ -31,15 +31,24 @@ const demoRecords = [
  {id:'snow',type:'place',title:'第一次独自去北海道旅行',date:'2026-01-25',city:'札幌',country:'日本',place:'北海道',note:'雪落下的时候，世界好像按下了静音键。',mood:'惊艳',scene:2,first:true,companion:'自己'},
  {id:'camp',type:'first',title:'第一次在湖边醒来',date:'2025-05-01',city:'杭州',country:'中国',place:'千岛湖',note:'清晨六点，帐篷外是一整片蓝色。',mood:'难忘',scene:3,first:true,companion:'朋友'}
 ];
+/* 示例数据的人物生日：让首页卡片直接落在「你已经生活了 N 天」上。
+ * 只属于示例数据；用户自己填的生日永远不会被它覆盖（见下面的迁移判断）。 */
+const DEMO_BIRTHDAY = '1996-03-19';
 let storageIssue = false;
 const STORAGE_KEY = 'life-plus-one-review-experience-v1';
 function read(key, fallback) { try { const raw=localStorage.getItem(key); if(raw===null)return fallback; const data=JSON.parse(raw); if(!data || !Array.isArray(data.records) || !Array.isArray(data.wishes))throw Error('Invalid data'); return data; } catch { storageIssue=true; return fallback; } }
 const oldRecords = null;
 const oldWishes = null;
 const stored = read(STORAGE_KEY, null);
-let state = stored || {records:oldRecords || demoRecords,wishes:oldWishes || [{id:'wish-snow',title:'去北海道看雪',category:'想去',state:'想做',scene:2},{id:'wish-camp',title:'在湖边露营，看一场日出',category:'想体验',state:'进行中',scene:3},{id:'wish-film',title:'看一场露天电影',category:'想看',state:'想做',scene:0}], birthday:'',demo:!oldRecords};
+let state = stored || {records:oldRecords || demoRecords,wishes:oldWishes || [{id:'wish-snow',title:'去北海道看雪',category:'想去',state:'想做',scene:2},{id:'wish-camp',title:'在湖边露营，看一场日出',category:'想体验',state:'进行中',scene:3},{id:'wish-film',title:'看一场露天电影',category:'想看',state:'想做',scene:0}], birthday:DEMO_BIRTHDAY,demo:!oldRecords};
 state.records = (state.records || []).filter(r=>r && typeof r==='object').map(r => ({...r,id:r.id || uid(),date:typeof r.date==='string'?r.date:'',first:!!r.first || r.type==='first'}));
 state.wishes = (state.wishes || []).filter(w=>w && typeof w==='object').map(w => ({...w,id:w.id || uid()}));
+/* 老版本存在浏览器里的示例数据生日是空的，会把首页卡片退回「收藏了多少个瞬间」。
+ * 只在「记录里全是示例那几条、自己没加过内容」时补上生日；一旦有自己的记录或生日，一律不动。 */
+if(state.demo===true && !state.birthday && state.records.length>0 && state.records.every(r=>demoRecords.some(d=>d.id===r.id))){
+ state = {...state,birthday:DEMO_BIRTHDAY};
+ if(!storageIssue){ try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); } catch {} }
+}
 let photoLoading=false, photoRequest=0;
 let page=new URLSearchParams(location.search).get('view')==='home'?'home':'cover', filter='all', query='', wishFilter='全部', detailId='', modalReturn=null, pendingScene=null, pendingPhoto=null;
 const app = $('#app');
@@ -59,13 +68,22 @@ const HOME_STYLE_KEY = 'life-plus-one-review-home-style';
 const readHomeStyle = () => { try { return localStorage.getItem(HOME_STYLE_KEY)==='classic'?'classic':'photo'; } catch { return 'photo'; } };
 let homeStyle = readHomeStyle();
 const swapLabel = style => style==='classic' ? '切换为照片版卡片' : '切换为简洁版卡片';
+/* 卡片文案：两种版本共用同一份内容，差别只在视觉。
+ * 数据源是「你已经生活了 N 天」（codex 原版口径），只有连生日都没有时才退回收藏数量。 */
+function bannerCopy() {
+ const days = state.birthday ? Math.floor((Date.parse(today())-Date.parse(state.birthday))/86400000)+1 : null;
+ return {
+  label: days ? '你已经生活了' : '你已经收藏了',
+  count: (days || state.records.length).toLocaleString(),
+  unit: days ? '天' : '个瞬间',
+  note: days ? '仍有很多值得 +1 的瞬间，在路上。' : '继续出发，去体验更多可能。',
+ };
+}
 /* 一张卡（两种版本共用一个渲染函数，切换时只换这张卡，不动整页） */
 function bannerCard(style) {
- const days=state.birthday ? Math.floor((Date.parse(today())-Date.parse(state.birthday))/86400000)+1 : null;
- const count=(days || state.records.length).toLocaleString();
- return style==='classic'
-  ? `<button class="life-banner style-classic" data-go="numbers"><div class="banner-copy"><span>${days?'你已经生活了':'你已经收藏了'}</span><div><strong>${count}</strong> ${days?'天':'个瞬间'}<em>+1</em></div><p>${days?'仍有很多值得 +1 的瞬间，在路上。':'继续出发，去体验更多可能。'}</p></div><span class="banner-caption">A More Colorful Life</span></button>`
-  : `<button class="life-banner" data-go="numbers"><div class="banner-copy"><span>${days?'已经和这个世界相遇了':'已经收藏了'}</span><div><strong>${count}</strong> ${days?'天':'个瞬间'}</div><p>继续出发，去体验更多可能。</p></div></button>`;
+ const t = bannerCopy();
+ const body = `<div class="banner-copy"><span>${t.label}</span><div><strong>${t.count}</strong><span class="banner-unit">${t.unit}</span><em>+1</em></div><p>${t.note}</p></div><span class="banner-caption">A More Colorful Life</span>`;
+ return `<button class="life-banner${style==='classic'?' style-classic':''}" data-go="numbers">${body}</button>`;
 }
 const bannerSlide = style => `<div class="banner-slide">${bannerCard(style)}</div>`;
 /* 卡片外层：右上角一个双箭头按钮负责切换 */

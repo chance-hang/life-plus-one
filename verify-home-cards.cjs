@@ -42,6 +42,11 @@ const read = () => {
       height: Math.round(heroBox.height),
       strong: strong.textContent.trim(),
       strongColor: getComputedStyle(strong).color,
+      label: hero.querySelector('.banner-copy > span').textContent.trim(),
+      unit: hero.querySelector('.banner-unit')?.textContent.trim() || '',
+      note: hero.querySelector('.banner-copy p').textContent.trim(),
+      badgeText: badge ? badge.textContent.trim() : null,
+      captionText: caption ? caption.textContent.trim() : null,
       captionShown: caption ? getComputedStyle(caption).display !== 'none' : false,
       badgeShown: badge ? getComputedStyle(badge).display !== 'none' : false,
     },
@@ -122,7 +127,16 @@ const probe = () => {
     assert(photo.track.exists && photo.track.slides === 1, `静止时轨道里应只有 1 张卡，实际 ${photo.track.slides}`);
     assert.equal(photo.track.style, 'photo');
     assert.equal(photo.style, 'photo');
-    assert(!photo.hero.classic && !photo.hero.captionShown && !photo.hero.badgeShown, '照片版不应显示落款与 +1 徽标');
+    assert(!photo.hero.classic, '首次进入应为照片版卡片');
+    // —— 卡片内容对齐 codex 原版：你已经生活了 N 天 + 落款，不再出现「收藏了多少个瞬间」——
+    assert.equal(photo.hero.label, '你已经生活了', `卡片首行应为人生天数口径，实际 ${photo.hero.label}`);
+    assert.equal(photo.hero.unit, '天', `卡片单位应为「天」，实际 ${photo.hero.unit}`);
+    assert.equal(photo.hero.note, '仍有很多值得 +1 的瞬间，在路上。', `卡片结语不符，实际 ${photo.hero.note}`);
+    assert(!/个瞬间/.test(`${photo.hero.label}${photo.hero.unit}${photo.hero.note}`), '卡片不应再退回「收藏了多少个瞬间」的文案');
+    assert(/^\d{1,3}(,\d{3})+$/.test(photo.hero.strong), `卡片大数字应是带千分位的人生天数，实际 ${photo.hero.strong}`);
+    assert(Number(photo.hero.strong.replace(/,/g, '')) > 10000, `示例数据应落在人生天数上，实际 ${photo.hero.strong}`);
+    assert(photo.hero.captionShown && photo.hero.captionText === 'A More Colorful Life', `落款应显示，实际 ${JSON.stringify([photo.hero.captionShown, photo.hero.captionText])}`);
+    assert(photo.hero.badgeShown && photo.hero.badgeText === '+1', `+1 徽标应显示，实际 ${JSON.stringify([photo.hero.badgeShown, photo.hero.badgeText])}`);
 
     // 六宫格沿用 codex 的说明文案
     const expectModules = ['人生清单|3 件小小心愿', '去过的地方|3 座城市的故事', '第一次|2 次勇敢尝试', '美食|1 份味觉记忆', '电影|0 场光影之旅', '人生数字|关于我的小小宇宙'];
@@ -143,6 +157,12 @@ const probe = () => {
     assert.equal(classic.swap.label, '切换为照片版卡片', `切换后入口文案应更新，实际 ${classic.swap.label}`);
     assert.equal(classic.hero.strongColor, 'rgb(36, 108, 204)', `简洁版数字应为深蓝，实际 ${classic.hero.strongColor}`);
     assert.equal(classic.hero.height, photo.hero.height, `两种版本卡片高度应一致（滑轨统一高度）：${photo.hero.height} vs ${classic.hero.height}`);
+    // 两版内容完全一致，差别只该在视觉（照片底 / 浅色底）
+    assert.deepEqual(
+      ['label', 'unit', 'strong', 'note', 'badgeText', 'captionText'].map(k => classic.hero[k]),
+      ['label', 'unit', 'strong', 'note', 'badgeText', 'captionText'].map(k => photo.hero[k]),
+      '两种版本卡片的内容应完全一致（只换视觉，不换文案）',
+    );
 
     // —— 横向滑动：动画中轨道里应同时存在两张卡，且轨道发生横向位移 ——
     const animated = await browser.newContext({ reducedMotion: 'no-preference', viewport: { width: 1536, height: 703 } });
@@ -193,6 +213,24 @@ const probe = () => {
     const mobile = await page.evaluate(read);
     assert.equal(mobile.modules.length, 6);
     assert(mobile.swap.exists && mobile.swap.insideCard, '手机视口下切换按钮应仍在卡片右上角');
+
+    // —— 回归：老示例数据（生日为空）要自动补上生日，卡片不能再退回「收藏了多少个瞬间」 ——
+    const legacy = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1536, height: 703 } });
+    const page3 = await legacy.newPage();
+    page3.on('pageerror', e => errors.push(e.message));
+    await page3.goto(url);
+    await page3.locator('.modules').waitFor();
+    await page3.evaluate(() => {
+      // 模拟旧版本留在浏览器里的示例数据：有 4 条示例记录，但生日是空的
+      localStorage.setItem('life-plus-one-review-experience-v1', JSON.stringify({ records: demoRecords, wishes: [], birthday: '', demo: true }));
+    });
+    await page3.reload();
+    await page3.locator('.modules').waitFor();
+    const migrated = await page3.evaluate(read);
+    assert.equal(migrated.hero.label, '你已经生活了', `老示例数据应自动补上生日，实际 ${migrated.hero.label}`);
+    assert.equal(migrated.hero.unit, '天', `迁移后单位应为「天」，实际 ${migrated.hero.unit}`);
+    assert(/^\d{1,3}(,\d{3})+$/.test(migrated.hero.strong), `迁移后应显示人生天数，实际 ${migrated.hero.strong}`);
+    await legacy.close();
 
     if (errors.length) throw new Error(`script errors: ${errors.join(' | ')}`);
     console.log('照片版  ', JSON.stringify(photo.hero), JSON.stringify(photo.brand.block), JSON.stringify(photo.swap));
