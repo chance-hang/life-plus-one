@@ -79,7 +79,9 @@ function bannerCopy(style) {
  // 照片版固定讲收藏数量；简洁版在没填生日时也退回这套，避免出现一片空白
  return { label:'你已经收藏了', count:state.records.length.toLocaleString(), unit:'个瞬间', note:'继续出发，去体验更多可能。', badge:false, caption:false };
 }
-/* 一张卡（两种版本共用一个渲染函数，切换时只换这张卡，不动整页） */
+/* 一张卡（两种版本共用一个渲染函数，切换时只换这张卡，不动整页）
+ * 落款是卡片的直接子元素：它遵守卡片的统一内边距（--pro-inset），
+ * 不再自带一套 16/14 的边距与自己的衬线字体。 */
 function bannerCard(style) {
  const t = bannerCopy(style);
  const body = `<div class="banner-copy"><span>${t.label}</span><div><strong>${t.count}</strong><span class="banner-unit">${t.unit}</span>${t.badge?'<em>+1</em>':''}</div><p>${t.note}</p></div>${t.caption?'<span class="banner-caption">A More Colorful Life</span>':''}`;

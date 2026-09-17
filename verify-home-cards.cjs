@@ -30,6 +30,20 @@ const read = () => {
   const wrap = q('.banner-wrap');
   const swap = q('.banner-swap');
   const heroBox = hero.getBoundingClientRect();
+  // 「文字 → 卡片边缘」的距离。
+  // 先临时去掉 rotate 再量：落款带 -7deg 旋转，直接量到的是旋转后的外接框，
+  // 会比人眼看到的那一圈大，距离就失真了（transform 不参与布局，临时清掉是安全的）。
+  const edgeOf = el => {
+    if (!el) return null;
+    const saved = el.style.transform;
+    el.style.transform = 'none';
+    const r = el.getBoundingClientRect();
+    el.style.transform = saved;
+    const n = v => Math.round(v * 10) / 10;
+    return { left: n(r.left - heroBox.left), right: n(heroBox.right - r.right), top: n(r.top - heroBox.top), bottom: n(heroBox.bottom - r.bottom) };
+  };
+  const copyEl = hero.querySelector('.banner-copy');
+  const metricsOf = el => { const cs = getComputedStyle(el); return `${cs.fontSize} | ${cs.lineHeight}`; };
   const swapBox = swap ? swap.getBoundingClientRect() : null;
   return {
     panel: [Math.round(panel.width), Math.round(panel.height)],
@@ -65,6 +79,16 @@ const read = () => {
         note: typeOf(hero.querySelector('.banner-copy p')),
       },
       captionType: typeOf(caption),
+      // 落款允许斜体，但字号/行高/字体族必须和正文结语同一套（原来 Georgia serif 是差异来源）
+      captionMetrics: caption ? `${metricsOf(caption)} | ${getComputedStyle(caption).fontFamily.split(',')[0]}` : null,
+      // 文字到卡片四边的距离：两版、每个元素都要落在同一套内边距上
+      geo: {
+        copy: edgeOf(copyEl),
+        label: edgeOf(hero.querySelector('.banner-copy > span')),
+        numbers: edgeOf(hero.querySelector('.banner-copy > div')),
+        note: edgeOf(hero.querySelector('.banner-copy p')),
+        caption: edgeOf(caption),
+      },
     },
     records: state.records.length,
     swap: {
@@ -185,6 +209,37 @@ const probe = () => {
     // 但字体格式必须逐项一致：字号 / 行高 / 字重 / 字形 / 字体族
     assert.deepEqual(classic.hero.type, photo.hero.type,
       `两版字体格式必须完全一致：照片版 ${JSON.stringify(photo.hero.type)} vs 简洁版 ${JSON.stringify(classic.hero.type)}`);
+
+    // —— 排版几何：文字到卡片四条边的距离，天数卡必须和瞬间卡一模一样 ——
+    // 这段是「看着位置不对」的根因防线：任何一段文字自带了一套装边距，肉眼就会觉得歪。
+    const inset = photo.hero.geo.copy.left; // 卡片统一内边距 --pro-inset
+    assert.equal(inset, 20, `卡片内边距应为 20px（--pro-inset），实际 ${inset}`);
+    // 每行要卡哪些边：copy / 数字行 / 结语是块级，会撑满内容宽度，左右都要贴住内边距；
+    // 首行 label 是行内 <span>，盒子宽度跟着文字走，右边距是剩余空间，不能拿来比对。
+    const geoEdges = { copy: 'left,top,right,bottom', label: 'left,top', numbers: 'left,top,right,bottom', note: 'left,top,right,bottom' };
+    const geoKeys = Object.keys(geoEdges);
+    const pick = (o, list) => Object.fromEntries(list.map(k => [k, o[k]]));
+    for (const k of geoKeys) {
+      const want = geoEdges[k].split(',');
+      assert.deepEqual(pick(classic.hero.geo[k], want), pick(photo.hero.geo[k], want),
+        `「${k}」到卡片边缘的距离两版必须一致：瞬间卡 ${JSON.stringify(pick(photo.hero.geo[k], want))} vs 天数卡 ${JSON.stringify(pick(classic.hero.geo[k], want))}`);
+    }
+    for (const [name, card] of [['瞬间卡', photo], ['天数卡', classic]]) {
+      for (const k of geoKeys) {
+        assert.equal(card.hero.geo[k].left, inset, `${name}「${k}」左边距应为 ${inset}px，实际 ${card.hero.geo[k].left}`);
+        if (geoEdges[k].includes('right')) {
+          assert.equal(card.hero.geo[k].right, inset, `${name}「${k}」右边距应为 ${inset}px，实际 ${card.hero.geo[k].right}`);
+        }
+      }
+    }
+    // 落款：只有天数卡有，所以它到边的距离必须等于内边距，而不是自己留的 16/14
+    assert.equal(classic.hero.geo.caption.right, inset, `天数卡落款右边距应和正文一致（${inset}px），实际 ${classic.hero.geo.caption.right}`);
+    assert.equal(classic.hero.geo.caption.bottom, inset, `天数卡落款下边距应和正文用同一套数值（${inset}px），实际 ${classic.hero.geo.caption.bottom}`);
+    // 落款允许斜体，但字号/行高/字体族要和瞬间卡的结语同一套（原来 Georgia, serif 是差异来源）
+    const noteParts = photo.hero.type.note.split(' | ');
+    const expectCaptionMetrics = `${noteParts[0]} | ${noteParts[1]} | ${noteParts[4]}`;
+    assert.equal(classic.hero.captionMetrics, expectCaptionMetrics,
+      `落款的字号/行高/字体族应与结语一致：期望 ${expectCaptionMetrics}，实际 ${classic.hero.captionMetrics}`);
 
     // —— 横向滑动：动画中轨道里应同时存在两张卡，且轨道发生横向位移 ——
     const animated = await browser.newContext({ reducedMotion: 'no-preference', viewport: { width: 1536, height: 703 } });

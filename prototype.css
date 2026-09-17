@@ -17,6 +17,8 @@
   --pro-r-lg: 20px;
   --pro-r-md: 16px;
   --pro-r-sm: 13px;
+  /* 卡片统一内边距（左右）。正文、落款都用它，保证「文字→卡片边缘」的距离一致 */
+  --pro-inset: 20px;
   --pro-shadow: 0 2px 10px rgba(43, 86, 135, .06);
   --pro-shadow-up: 0 8px 22px rgba(43, 86, 135, .1);
   --pro-title: 700 34px/42px var(--font-ui);
@@ -204,7 +206,7 @@
 /* ── 首页 Hero：湖景照片 + 白色大数字 ───────────────── */
 .life-banner {
   min-height: 196px;
-  padding: 22px 20px;
+  padding: 22px var(--pro-inset);
   border-radius: var(--pro-r-lg);
   overflow: hidden;
   box-shadow: var(--pro-shadow);
@@ -244,19 +246,23 @@
   color: var(--pro-blue);
 }
 .banner-copy p { font: 500 13px/20px var(--font-ui); color: rgba(255, 255, 255, .86); }
-/* 落款：两版都在右下角，只有颜色随底色走 */
+/* 落款：并入卡片的排版系统，不再自带一套边距与字体。
+ * ① 位置遵守卡片的统一内边距 --pro-inset（原来是 16/14，比正文的 20 更贴边）；
+ * ② 字体族与正文统一（var(--font-ui)），只保留斜体 + 微倾做落款感。
+ * 这样「文字→卡片边缘」的距离在全卡、两版之间都是同一套数字。 */
 .banner-caption {
   position: absolute;
-  right: 16px;
-  bottom: 14px;
-  font: italic 13px Georgia, serif;
+  right: var(--pro-inset);
+  bottom: var(--pro-inset);
+  font: italic 13px/20px var(--font-ui);
   color: rgba(255, 255, 255, .8);
   transform: rotate(-7deg);
+  transform-origin: right bottom;
 }
 
 /* codex 简洁版卡片：浅色渐变 + 右侧露出照片 + 深蓝数字 + 落款 */
 /* 高度由上面的滑轨统一给（.banner-wrap .banner-slide .life-banner），这里只管底色与排版 */
-.life-banner.style-classic { padding: 22px 20px; background: var(--blue-soft); }
+.life-banner.style-classic { padding: 22px var(--pro-inset); background: var(--blue-soft); }
 .life-banner.style-classic:before { background-position: center 61%; }
 .life-banner.style-classic:after { background: linear-gradient(90deg, var(--hero-wash-start), var(--hero-wash-mid) 62%, var(--hero-wash-end)); }
 /* 简洁版（人生天数卡）只换颜色，不换字号 —— 与照片版保持同一套字体格式 */
