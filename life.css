@@ -2,10 +2,11 @@
  * D=CSS-feedback · E=lake-photographs · SOUL=7 SPECTACLE=2 DENSITY=6
  * V1.1 preserves the approved palette and shell; this is a calibration, not a redesign. */
 :root {
-  --blue:#3286ee;
-  --line:#e7eef5;
-  --blue-soft:#e9f5ff;
-  --muted:#6a7d92;
+  /* 品牌色 / 文字灰阶 / 面 / 线这几个语义变量已迁到 tokens.css 统一定义，
+   * 这里不再重复写值 —— 同名变量重复定义时以最后加载的为准，留在这里会
+   * 出现"改了 tokens 但没生效"。仍在用 --blue / --ink / --muted 等旧名字的
+   * 地方不必改：tokens.css 已把它们做成指向新令牌的别名。
+   * 下面保留的是封面、照片等装饰性专用变量，与品牌令牌无关。 */
   --cover-wash-start:rgba(243,250,255,.88);
   --cover-wash-mid:rgba(244,250,255,.52);
   --cover-wash-end:rgba(241,249,255,.13);
@@ -14,8 +15,6 @@
   --glass-border:rgba(250,253,255,.7);
   --chip-surface:rgba(248,252,255,.65);
   --sun-accent:#d2a66b;
-  --ink:#263e58;
-  --surface:#fff;
   --button-shadow:#3b88d72b;
   --cover-button-shadow:#2e78bd40;
   --button-inset:#ffffff52;
@@ -35,39 +34,21 @@
   --hero-wash-start:#f4fbfff0;
   --hero-wash-mid:#eff9ff88;
   --hero-wash-end:#e7f4ff18;
-  --blue-deep:#246ccc;
   --hero-badge-surface:#ffffffa8;
-  --place-surface:#edfaf8;
-  --place:#55bfa9;
-  --place-icon-wash:#d7f4e9;
-  --food-surface:#fff3ef;
-  --food:#ee9a80;
-  --food-icon-wash:#ffe0d5;
-  --movie-surface:#f3f2ff;
-  --movie:#8a85e8;
-  --movie-icon-wash:#e4e0ff;
-  --number-surface:#fff8ed;
-  --number:#e5b064;
-  --number-icon-wash:#ffeccd;
-  --wish-surface:#fff2f5;
-  --wish-accent:#e896ae;
-  --wish-icon-wash:#fddce8;
+  /* 分类色（--place / --food / --movie / --number / --wish / --completed-ink /
+   * --rating-accent / --danger-ink）已迁到 tokens.css 的 --cat-* 系列，
+   * 旧名在那里保留为别名。这里不再重复定义。 */
   --card-hover-shadow:#477ba312;
-  --revisit-surface:#eaf4fdd9;
   --light:#f7fbff;
   --nav-surface:#ffffffed;
   --nav-add-shadow:#4b9bef3d;
   --wish-wash-start:#eaf6fff2;
   --wish-wash-end:#eef8ff70;
-  --completed-ink:#379e8b;
-  --completed-surface:#e5f5f0;
   --places-wash-start:#eef9ff44;
   --places-wash-end:#f0f8ff77;
   --number-wash-start:#edf8fff5;
   --number-wash-end:#edf8ff88;
   --menu-shadow:#477ba308;
-  --rating-accent:#e4b668;
-  --danger-ink:#ba7978;
   --overlay-scrim:#1f4c7052;
   --sheet-shadow:#2f5b7629;
   --required-ink:#cc8a8a;
@@ -82,15 +63,16 @@
   --mobile-wash-lake:#eaf7ff18;
   --mobile-wash-end:#d4eaff42;
   --header-shadow:#497da60b;
-  --canvas:#eff7fc;
   --handle:#d7e6f1;
   --toggle-off:#d8e3ed;
   --toggle-on:#61a8f2;
   --timeline:#cbe3fa;
-  --radius-sm:13px; --radius-md:18px; --radius-lg:23px; --radius-sheet:29px;
-  --touch-min:44px; --content-max:460px; --ease:cubic-bezier(.22,1,.36,1);
+  /* 半径、触控下限、内容宽、动效曲线、画布色已迁到 tokens.css。
+   * 这里原本是第五套刻度（--radius-md 写 18px、--radius-lg 写 23px，
+   * 与首页实测在用的 16 / 20 对不上，且因为写在后面会把令牌盖掉）。
+   * 旧名在 tokens.css 里保留为别名，下面的引用不用改。 */
   font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-  color:var(--ink); background:var(--canvas); font-synthesis:none;
+  color:var(--ink); background:var(--color-canvas); font-synthesis:none;
 }
 
 *{box-sizing:border-box}

@@ -4,7 +4,22 @@
 
 本分支为 `review-experience-20260916`。运行 `node serve.cjs`，打开 http://localhost:4186/?view=home 。页面持续显示“待验收”，使用独立验收存储，未连接或修改Prod数据。
 
-本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)、[原型对齐清单](docs/PROTOTYPE_ALIGNMENT.md)。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+本轮说明：[产品审计](docs/EXPERIENCE_AUDIT.md)、[Design System与扩展说明](docs/DESIGN_SYSTEM.md)、[设计令牌](docs/DESIGN_TOKENS.md)、[原型对齐清单](docs/PROTOTYPE_ALIGNMENT.md)。以下为基线版本记录，端口、存储键与编辑器说明以本节和新文档为准。
+
+## 样式分层
+
+```
+tokens.css      设计令牌：全站唯一取值来源，只定义变量
+  ↓
+life.css        codex 原版：封面、壳体、基础组件
+experience.css  体验层：语义 token 应用、编辑器、详情
+prototype.css   原型对齐层：按 10 页视觉稿校准
+  ↓
+components.css  全站组件统一层：把各页各写一套的共用组件拉回同一套令牌
+```
+
+只有 `tokens.css` 定义取值；其余各层只引用。新增样式请引用令牌，不要写死像素与色值 ——
+`verify-tokens.cjs` 会扫描页面实际渲染出的颜色，出现令牌色板之外的值即报错。
 
 ### 验证脚本
 
@@ -20,8 +35,13 @@
 | `node verify-home-cards.cjs` | 首页 hero：品牌胶囊 + 两种卡片格式 + 切换持久化 + 六宫格文案 + 文字到卡片边缘的距离与字体一致性（含旋转元素的真实可见距离）+ 落款「A More Colorful Life」在两版的位置/字体/颜色/光晕一致 + 7 档宽度下正文与落款不相撞、两版正文位置不因折行而跳 |
 | `python verify-caption-pixels.py` | 落款像素复核：把它从照片里「减」出来（有/无落款两张图做差），逐像素量局部对比度与明度。两版落款的明暗方向相反，门槛也分两套：照片卡白字压深水（比最暗邻，中位 ≥4.5）；天数卡灰蓝字压亮水（比最亮邻，中位 ≥3.0，<2.2 占比 ≤5%）—— 「压在照片上还看不看得清」是 DOM 属性量不出来的 |
 | `node verify-desktop-shell.cjs` | 桌面预览壳面板比例与页眉几何 |
+| `node verify-tokens.cjs` | 设计令牌守卫：令牌层是否真的加载（样式表 404 是静默失效）、42 个关键令牌能否解析出值、旧变量别名是否指对、7 个路由上统计/chip/卡片的取值是否一致、页面上有没有令牌色板之外的「野颜色」 |
 
 所有脚本默认打 `http://127.0.0.1:4186`，可用 `REVIEW_URL` 覆盖（例如 `REVIEW_URL=http://127.0.0.1:4173 node verify-ui.cjs`）。
+
+> 新增样式或脚本文件时，记得在 `serve.cjs` 的白名单里登记。它只放行名单内的文件，
+> 漏登记会返回 404 —— 而样式表 404 不报错、不警告，只是整份不生效，页面照常渲染，
+> 非常难查（本轮就踩过一次：`tokens.css` 全站的变量都是空的，但页面看不出异常）。
 
 > `verify.cjs` 与 `verify-ui.cjs` 曾长期处于红灯：它们断言的是 experience.js 接管表单之前的旧 DOM
 > （`#record-form`、`#note-count`、`#photo-file`、`#photo-preview`、`[data-scene]`）。2026-09-17 已按当前 DOM 重写，
@@ -50,7 +70,7 @@
 
 直达首页：http://127.0.0.1:4173/?view=home 。不带参数则展示进入封面。这是本机测试地址，不是公网部署。
 
-当前入口加载 `life.css` 和 `life.js`。`styles.css`、`app.js` 为上一版保留文件，不再加载。
+当前入口加载 `tokens.css` + `life.css` + `experience.css` + `prototype.css` + `components.css` 与 `life.js` + `experience.js`。`styles.css`、`app.js` 为上一版保留文件，不再加载。
 
 ## 本版
 

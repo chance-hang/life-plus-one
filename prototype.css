@@ -5,32 +5,16 @@
  * 说明：照片素材沿用 codex 那一版（assets/cover-landscape.png、memory-scenes.png）。 */
 
 :root {
-  --pro-canvas: #eef4fd;
-  --pro-surface: #fff;
-  --pro-ink: #22374f;
-  --pro-sub: #8b9bb0;
-  --pro-line: #eaf0f8;
-  --pro-blue: #3a8cf7;
-  --pro-blue-wash: #e8f2ff;
-  --pro-star: #ff5a52;
-  --pro-heart: #ff5a5f;
-  --pro-r-lg: 20px;
-  --pro-r-md: 16px;
-  --pro-r-sm: 13px;
-  /* 卡片统一内边距（左右）。正文、落款都用它，保证「文字→卡片边缘」的距离一致 */
-  --pro-inset: 20px;
+  /* 取值已全部迁到 tokens.css（--pro-* 名字在那里做成了别名，本文件的引用不用改）。
+   * 这里只留下本层专用、且依赖具体排版才能定出来的量。 */
   /* 落款在右下角占掉的那条道：结语必须让开它，否则窄卡上会撞在一起。
    * 数值 = 落款那行斜体的墨迹宽度（codex 的 Georgia 12px 下 127.5px）+ 8px 间隙，见 .banner-caption。
    * 换字体/字号就会换宽度：PingFang 13px 是 125.7，Georgia 13px 会涨到 138.1（那时 380 宽的卡片就撞了）。 */
   --pro-caption-lane: 136px;
-  --pro-shadow: 0 2px 10px rgba(43, 86, 135, .06);
-  --pro-shadow-up: 0 8px 22px rgba(43, 86, 135, .1);
-  --pro-title: 700 34px/42px var(--font-ui);
-  --pro-num: 700 16px/22px var(--font-ui);
-  --pro-tap: 44px;
-  /* --pro-canvas-clear 是 --pro-canvas 的透明版本，改底色时两处要一起改 */
-  --pro-canvas-clear: rgba(238, 244, 253, 0);
-  --pro-ease: cubic-bezier(.22, 1, .36, 1);
+  /* 落款下沉补偿：绕右下角转 -7° 后左端会自己沉「墨迹宽 × sin7°」，
+   * 不补这一截，左端会被卡片圆角裁掉。12px Georgia 墨迹 127.54px → 15.5px。
+   * 换字体/字号要跟着改（PingFang 13px 时是 15.7px）。 */
+  --pro-caption-sink: 15.5px;
 }
 
 /* ── 页面底色与留白 ───────────────────────────────
@@ -196,18 +180,18 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, .86);
+  background: var(--color-glass-solid);
   color: var(--pro-ink);
-  box-shadow: 0 2px 8px rgba(23, 58, 96, .16);
+  box-shadow: var(--shadow-hairline);
   transition: transform .2s var(--pro-ease), background .2s;
 }
 .banner-swap .icon { width: 17px; height: 17px; }
 .banner-swap:active > span { transform: scale(.92); }
 /* 简洁版底色是浅色渐变，白色小圆点不够跳，换成更实一点的底 + 深蓝图标 */
 .banner-wrap[data-style="classic"] .banner-swap > span {
-  background: rgba(255, 255, 255, .95);
+  background: var(--color-on-dark-strong);
   color: var(--blue-deep);
-  box-shadow: 0 2px 8px rgba(36, 108, 204, .2);
+  box-shadow: var(--shadow-hairline);
 }
 
 /* ── 首页 Hero：湖景照片 + 白色大数字 ───────────────── */
@@ -220,12 +204,12 @@
 }
 .life-banner:before { background-image: url('assets/cover-landscape.png'); background-position: center 42%; }
 .life-banner:after {
-  background: linear-gradient(180deg, rgba(23, 58, 96, .42), rgba(23, 58, 96, .18) 45%, rgba(18, 48, 84, .55));
+  background: linear-gradient(180deg, var(--scrim-strong), var(--scrim-mid) 45%, var(--scrim-deep));
 }
 /* 卡片文字：两种版本（照片版=收藏瞬间 / 简洁版=人生天数）共用这一套字体格式，
  * 各版只允许覆盖颜色。改这里的字号会让两版失衡，verify-home-cards.cjs 会比对两版字号。 */
 .banner-copy { position: relative; z-index: 1; color: #fff; }
-.banner-copy > span { font: 500 13px/20px var(--font-ui); color: rgba(255, 255, 255, .88); }
+.banner-copy > span { font: 500 13px/20px var(--font-ui); color: var(--color-on-dark-signature); }
 .banner-copy > div {
   display: flex;
   align-items: baseline;
@@ -247,7 +231,7 @@
   margin-top: 5px;
   padding: 3px 8px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, .85);
+  background: var(--color-glass-solid);
   font: 600 13px/18px var(--font-ui);
   font-style: normal;
   color: var(--pro-blue);
@@ -256,7 +240,7 @@
  * 窄卡下它给落款让道时会折到第二行，height 固定住，第二行就往下溢出而不撑高正文块 ——
  * 正文块一高，垂直居中就会把大数字整体顶上去，而另一张卡的结语没折行，切换时数字会上下跳。
  * 溢出是可见的（overflow 默认 visible），第二行落在落款让出的那条道左边，不会压到落款。 */
-.banner-copy p { font: 500 13px/20px var(--font-ui); color: rgba(255, 255, 255, .86); height: 20px; }
+.banner-copy p { font: 500 13px/20px var(--font-ui); color: var(--color-on-dark-soft); height: 20px; }
 /* 落款「A More Colorful Life」—— 它是卡片自己的署名，不属于文案：
  * 两张卡都在右下角固定放同一行，字体 / 位置两版共用一套，只有颜色跟着各卡走。
  *   ① 字体：回到 codex 原本那套手写签名体 —— Georgia 衬线斜体 + 600 字重 + 12px，
@@ -294,10 +278,10 @@
 .banner-caption {
   position: absolute;
   right: var(--pro-inset);
-  bottom: calc(15px + 15.5px);
-  z-index: 2;
-  font: italic 600 12px/20px Georgia, "Times New Roman", serif;
-  color: rgba(255, 255, 255, .88);
+  bottom: calc(15px + var(--pro-caption-sink));
+  z-index: var(--z-caption);
+  font: var(--text-signature);
+  color: var(--color-on-dark-signature);
   text-shadow: 0 1px 2px rgba(8, 22, 42, .9), 0 0 2px rgba(8, 22, 42, .95), 0 0 8px rgba(8, 22, 42, .55);
   transform: rotate(-7deg);
   transform-origin: right bottom;
@@ -325,7 +309,7 @@
 /* 落款跟「各自卡片的正文色度」走（理由与实测见上面 .banner-caption 的注释）：
  * 天数卡正文是灰蓝，落款就用 codex 的 --muted；正文是深色，光晕也得跟着翻成浅色。 */
 .life-banner.style-classic .banner-caption {
-  color: #6a7d92;
+  color: var(--color-ink-4);
   text-shadow: 0 0 3px rgba(255, 255, 255, .8);
 }
 
@@ -409,7 +393,7 @@
   place-items: center;
   background: transparent;
   border: 0;
-  color: #c3d0e0;
+  color: var(--color-heart-off);
 }
 .fav-button .icon { width: 22px; height: 22px; }
 .fav-button.on { color: var(--pro-heart); }
@@ -432,8 +416,8 @@
 .type-card .type-shot { display: grid; place-items: center; height: 96px; background-image: url('assets/memory-scenes.png'); background-size: 200% 200%; }
 .type-card .type-shot.shot-plain { background-image: none; }
 .type-card .type-shot.shot-plain .icon { width: 30px; height: 30px; stroke-width: 1.6; }
-.type-card.type-wish .type-shot.shot-plain { background: linear-gradient(135deg, #fff7e4, #ffe9bd); color: #e5a83c; }
-.type-card.type-moment .type-shot.shot-plain { background: linear-gradient(135deg, #ecf4ff, #d9e9ff); color: #5f92d6; }
+.type-card.type-wish .type-shot.shot-plain { background: linear-gradient(135deg, var(--cat-wish-tint-a), var(--cat-wish-tint-b)); color: var(--cat-wish-ink); }
+.type-card.type-moment .type-shot.shot-plain { background: linear-gradient(135deg, var(--cat-moment-tint-a), var(--cat-moment-tint-b)); color: var(--cat-moment-ink); }
 .type-card.type-place .type-shot { background-position: left top; }
 .type-card.type-food .type-shot { background-position: right top; }
 .type-card.type-movie .type-shot { background-position: left bottom; }
@@ -451,7 +435,7 @@
   margin: 0 0 18px;
   overflow-x: auto;
   scrollbar-width: none;
-  background: rgba(255, 255, 255, .72);
+  background: var(--color-glass-soft);
   border-radius: var(--pro-r-md);
 }
 .chips::-webkit-scrollbar { display: none; }
@@ -476,7 +460,7 @@
 .wish-main > div { flex: 1; min-width: 0; }
 .wish-row h3 { font: 600 16px/24px var(--font-ui); color: var(--pro-ink); }
 .wish-row small { display: block; margin-top: 4px; font: 500 12px/19px var(--font-ui); color: var(--pro-sub); }
-.wish-chevron { width: 18px; height: 18px; color: #c3d0e0; flex-shrink: 0; }
+.wish-chevron { width: 18px; height: 18px; color: var(--color-heart-off); flex-shrink: 0; }
 .wish-tools { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--pro-line); }
 .wish-tools .text-button { min-height: var(--pro-tap); padding: 0 12px; font: 500 13px/20px var(--font-ui); color: var(--pro-sub); background: transparent; border: 0; }
 .wish-tools .text-button.danger { color: var(--pro-sub); }
@@ -488,13 +472,15 @@
 .timeline-year > h2 { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; font: 700 26px/34px var(--font-ui); color: var(--pro-blue); }
 .timeline-year > h2 i { width: 14px; height: 14px; border-radius: 50%; background: var(--pro-blue); }
 .timeline-year > h2 small { display: none; }
-.timeline-year .record-list { border-left: 2px solid #dbe8fb; padding-left: 20px; margin-left: 6px; }
+.timeline-year .record-list { border-left: 2px solid var(--color-line); padding-left: 20px; margin-left: 6px; }
 .timeline-month > h3 { display: none; }
 
-.record.record-stack { display: block; padding: 14px; }
+/* 堆叠卡（图在上、文在下）。内边距原本单独写 14px，与横向卡的 12px 对不上，
+ * 是"同类卡片两个规格"，统一到 --space-3。 */
+.record.record-stack { display: block; padding: var(--space-3); }
 .record-stack .record-hit { display: flex; flex-direction: column; align-items: stretch; }
 .record-stack .record-copy { order: 1; }
-.record-stack h3 { font: 600 16px/24px var(--font-ui); }
+.record-stack h3 { font: var(--text-card); }
 .record-stack p { margin-top: 4px; }
 .record-stack .record-hit > .photo { order: 2; width: 100%; height: 136px; margin-top: 10px; border-radius: var(--pro-r-sm); }
 .record-stack small { -webkit-line-clamp: 2; }
@@ -581,7 +567,7 @@
   opacity: .35;
 }
 .places-landscape > * { position: relative; z-index: 1; }
-.places-landscape span { display: inline-flex; align-items: center; gap: 6px; font: 600 14px/22px var(--font-ui); color: #2f5f95; }
+.places-landscape span { display: inline-flex; align-items: center; gap: 6px; font: 600 14px/22px var(--font-ui); color: var(--color-brand-deep); }
 .places-landscape .icon { width: 18px; height: 18px; }
 .places-landscape small { display: none; }
 
@@ -633,7 +619,7 @@
 .menu-list > button:last-child { border-bottom: 0; }
 .menu-list .icon:first-child { width: 21px; height: 21px; color: var(--pro-ink); flex-shrink: 0; }
 .menu-list span { flex: 1; font: 600 15px/23px var(--font-ui); color: var(--pro-ink); }
-.menu-list .icon:last-child { width: 16px; height: 16px; color: #c9d5e3; }
+.menu-list .icon:last-child { width: 16px; height: 16px; color: var(--color-icon-off); }
 .privacy-copy { font: 500 12px/19px var(--font-ui); color: var(--pro-sub); }
 
 /* ── 记录详情 ─────────────────────────────────────── */
@@ -681,14 +667,14 @@
 }
 .field > textarea { flex: 1; min-width: 0; min-height: 96px; padding: 10px 0; border: 0; background: transparent; font: 500 15px/25px var(--font-ui); color: var(--pro-ink); }
 .field:has(textarea) { display: block; border-bottom: 0; }
-.field:has(textarea) > textarea { display: block; width: 100%; margin-top: 10px; padding: 14px 16px; border-radius: var(--pro-r-md); background: #f3f8ff; }
+.field:has(textarea) > textarea { display: block; width: 100%; margin-top: 10px; padding: 14px 16px; border-radius: var(--pro-r-md); background: var(--color-brand-wash-2); }
 .field-counter { font: 500 12px/18px var(--font-ui); color: var(--pro-sub); }
 .form-columns { display: grid; gap: 0; }
 .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--pro-line); font: 600 15px/23px var(--font-ui); color: var(--pro-ink); }
 .toggle-row small { display: block; font: 500 12px/19px var(--font-ui); color: var(--pro-sub); font-weight: 500; }
-.toggle-row input { width: 48px; height: 28px; appearance: none; border-radius: 999px; background: #d7e2ee; position: relative; transition: background .2s; flex-shrink: 0; }
+.toggle-row input { width: 48px; height: 28px; appearance: none; border-radius: 999px; background: var(--color-line); position: relative; transition: background .2s; flex-shrink: 0; }
 .toggle-row input:checked { background: var(--pro-blue); }
-.toggle-row input:after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
+.toggle-row input:after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--color-surface); transition: transform .2s; box-shadow: var(--shadow-hairline); }
 .toggle-row input:checked:after { transform: translateX(20px); }
 .primary.full { min-height: 50px; border-radius: 999px; background: var(--pro-blue); font: 600 16px/24px var(--font-ui); }
 .photo-upload { display: inline-flex; align-items: center; gap: 6px; min-height: var(--pro-tap); font: 600 13px/20px var(--font-ui); color: var(--pro-blue); }
@@ -697,11 +683,11 @@
 .bottom-nav { border-top: 1px solid var(--pro-line); background: #fff; }
 .nav-item { font: 500 11px/16px var(--font-ui); color: var(--pro-sub); }
 .nav-item.active { color: var(--pro-blue); }
-.nav-add .icon { background: var(--pro-blue); border-color: #fff; box-shadow: 0 6px 16px rgba(58, 140, 247, .35); }
+.nav-add .icon { background: var(--pro-blue); border-color: var(--color-surface); box-shadow: var(--shadow-brand); }
 
 /* ── 空态与提示 ───────────────────────────────────── */
 .empty { display: grid; justify-items: center; gap: 8px; padding: 48px 20px; text-align: center; }
-.empty .icon { width: 34px; height: 34px; color: #b9cde4; }
+.empty .icon { width: 34px; height: 34px; color: var(--color-empty-icon); }
 .empty h3 { font: 600 16px/24px var(--font-ui); color: var(--pro-ink); }
 .empty p { font: 500 13px/20px var(--font-ui); color: var(--pro-sub); }
 .tiny-note { font: 500 12px/19px var(--font-ui); color: var(--pro-sub); }

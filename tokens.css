@@ -1,0 +1,300 @@
+/* +1 Life Plus One · 设计令牌（Design Tokens）
+ * ─────────────────────────────────────────────────────────────
+ * 全站唯一取值来源。新写的样式一律引用这里的变量，不要再写硬编码像素/色值。
+ *
+ * 取值的来路：本文件的每一个数字都是**从已通过验收的首页量出来的**，不是拍脑袋定的。
+ * 量法见 .workbuddy/probe-home.cjs（Playwright 取 computed style）。
+ * 也就是说「首页什么样，令牌就是什么样」——其它页面向令牌对齐，就是向首页对齐。
+ *
+ * 加载顺序：tokens.css → life.css → experience.css → prototype.css → components.css
+ *
+ * 命名：--类别-用途。改一个令牌全站跟着变；要单改某处请改组件，不要就地写死数值。
+ */
+
+:root {
+  /* ══════════════════════════════════════════════════════════
+   * 1. 颜色 · 品牌
+   * 两个蓝并存是有原因的：--blue 是 codex 原版（logo、图标用），
+   * --pro-blue 是原型图那版（按钮、选中态用）。实测差 8/6/9，
+   * 单看几乎一样，但混用会让品牌色看着"飘"，所以分开两个令牌锁死。
+   * ══════════════════════════════════════════════════════════ */
+  --color-brand: #3286ee;          /* codex 原蓝：logo "+1"、部分图标 */
+  --color-brand-bright: #3a8cf7;   /* 原型蓝：主按钮、chip 选中、图标容器 */
+  --color-brand-deep: #246ccc;     /* 按下/深底上的品牌色 */
+  --color-brand-wash: #e9f5ff;     /* 品牌浅底：图标圆底、搜索框、照片占位 */
+  --color-brand-wash-2: #e8f2ff;   /* 同为浅底，用于需要再淡一档的场合 */
+
+  /* ══════════════════════════════════════════════════════════
+   * 2. 颜色 · 中性（按深浅排序，1 最深 5 最浅）
+   * 原先有 4 套灰阶命名打架（--ink / --pro-ink / --muted 被定义了两次），
+   * 这里按"深浅"重新排一遍，一眼能看出该用哪一档。
+   * ══════════════════════════════════════════════════════════ */
+  --color-ink-1: #22374f;          /* 标题、强文字（原 --pro-ink） */
+  --color-ink-2: #263e58;          /* 正文（原 --ink） */
+  --color-ink-3: #435d75;          /* 辅助、图标按钮（原 --muted 的生效值） */
+  --color-ink-4: #6a7d92;          /* 落款/签名（codex 的 --muted 原值） */
+  --color-ink-5: #8b9bb0;          /* 次级说明、占位提示（原 --pro-sub） */
+
+  /* 面 */
+  --color-canvas: #eef4fd;         /* 页面底色 */
+  --color-surface: #ffffff;        /* 卡片、弹层 */
+  --color-surface-2: #fcfdff;      /* 次级面（下拉、输入框） */
+  --color-line: #eaf0f8;           /* 分割线、浅边框 */
+  --color-line-soft: #e7eef5;      /* 更淡的线（原 --line） */
+
+  /* 反色面上的文字（深底照片 / 主按钮） */
+  --color-on-dark: #ffffff;
+  --color-on-dark-soft: rgba(255, 255, 255, .86);   /* 深底上的次级文字 */
+  --color-on-dark-signature: rgba(255, 255, 255, .88); /* 深底上的落款 */
+
+  /* ══════════════════════════════════════════════════════════
+   * 3. 颜色 · 语义
+   * ══════════════════════════════════════════════════════════ */
+  --color-star: #ff5a52;           /* 评分星 */
+  --color-heart: #ff5a5f;          /* 收藏心 */
+  --color-heart-off: #c3d0e0;      /* 未收藏：原来这个值散在样式里，没登记 */
+  --color-success: #237762;
+  --color-danger: #e0574f;
+  --color-focus: #165fae;
+  --color-glass: rgba(248, 252, 255, .91);   /* 压在照片上的浅色玻璃底 */
+  /* 浅色玻璃的另一档：压在照片上要更透一点，能看见下面的图 */
+  --color-glass-soft: rgba(255, 255, 255, .72);
+  --color-glass-solid: rgba(255, 255, 255, .86);
+
+  /* 深色遮罩：照片卡底部压暗，保证白字读得清。三档是同一条渐变上的位置。 */
+  --scrim-strong: rgba(23, 58, 96, .42);
+  --scrim-mid: rgba(23, 58, 96, .18);
+  --scrim-deep: rgba(18, 48, 84, .55);
+  --color-icon-off: #c9d5e3;        /* 列表右侧箭头等极淡图标 */
+  --color-empty-icon: #b9cde4;      /* 空状态大图标 */
+  /* 「再回去看看」那类回访卡片的底：品牌浅蓝再淡一档、带一点透明，
+   * 压在页面底色上像一层薄纱。 */
+  --color-revisit-surface: rgba(234, 244, 253, .85);
+
+  /* 反色面上的白，按透明度分档（实测页面在用的就这几档，不要再加新的） */
+  --color-on-dark-faint: rgba(255, 255, 255, .72);
+  --color-on-dark-soft: rgba(255, 255, 255, .86);
+  --color-on-dark-signature: rgba(255, 255, 255, .88);
+  --color-on-dark-strong: rgba(255, 255, 255, .95);
+
+  /* ── 分类色：五类记录各有自己的一主一浅 ──
+   * 这些值原本散在 life.css 里，命名按类名走（--place / --food …），
+   * 其它页面想用同一套分类色时找不到，容易随手再配一个。
+   * 这里按"类别"重新收拢，--place 等旧名在下面照样保留为别名。 */
+  --cat-place: #55bfa9;        --cat-place-wash: #d7f4e9;   --cat-place-surface: #edfaf8;
+  --cat-food: #ee9a80;         --cat-food-wash: #ffe0d5;    --cat-food-surface: #fff3ef;
+  --cat-movie: #8a85e8;        --cat-movie-wash: #e4e0ff;   --cat-movie-surface: #f3f2ff;
+  --cat-number: #e5b064;       --cat-number-wash: #ffeccd;  --cat-number-surface: #fff8ed;
+  --cat-wish: #e896ae;         --cat-wish-wash: #fddce8;    --cat-wish-surface: #fff2f5;
+  --cat-done: #379e8b;         --cat-done-surface: #e5f5f0;
+  --cat-rating: #e4b668;       --cat-danger: #ba7978;
+  /* 记录类型选择卡里两个纯装饰的图标底色（愿望/其他瞬间），
+   * 是这两类专属的暖色/冷色点缀，不构成独立分类。 */
+  --cat-wish-tint-a: #fff7e4;  --cat-wish-tint-b: #ffe9bd;  --cat-wish-ink: #e5a83c;
+  --cat-moment-tint-a: #ecf4ff; --cat-moment-tint-b: #d9e9ff; --cat-moment-ink: #5f92d6;
+
+  /* ══════════════════════════════════════════════════════════
+   * 4. 字体
+   * ══════════════════════════════════════════════════════════ */
+  --font-ui: "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "HarmonyOS Sans SC",
+             -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-signature: Georgia, "Times New Roman", serif;   /* 落款签名体，与 .aside-script 同一语言 */
+
+  /* ══════════════════════════════════════════════════════════
+   * 5. 字号阶梯（font 简写：weight size/line-height family）
+   * 全部来自首页实测。原先其它页面各写各的（统计数字就有 22/28、20/27、
+   * 26/34、46/52 四种），统一后按用途取，不要另起一套。
+   * ══════════════════════════════════════════════════════════ */
+  --text-display: 700 46px/52px var(--font-ui);   /* 首页大数字 */
+  --text-title: 700 34px/42px var(--font-ui);     /* 页面大标题 */
+  --text-brand: 850 28px/28px var(--font-ui);     /* logo "+1" */
+  --text-heading: 700 26px/34px var(--font-ui);   /* 时间轴年份、分组标题 */
+  --text-stat: 700 22px/28px var(--font-ui);      /* 统计数字（3 列） */
+  /* 4 列时格子更窄，同一个数字要退一档才不挤（实测：4 列每格约 82px，
+   * 22px 的四位数会顶到边）。这不是"另一套字号"，是同一档的窄版。 */
+  --text-stat-sm: 700 20px/27px var(--font-ui);
+  --text-section: 700 20px/28px var(--font-ui);   /* 区块标题 h2 */
+  --text-card: 600 15px/23px var(--font-ui);      /* 记录/卡片标题 */
+  --text-body: 500 14px/23px var(--font-ui);      /* 正文 */
+  --text-strong: 600 14px/20px var(--font-ui);    /* 强调正文 */
+  --text-secondary: 500 13px/20px var(--font-ui); /* 次级 */
+  --text-meta: 500 12px/19px var(--font-ui);      /* 元信息 */
+  --text-micro: 500 11px/16px var(--font-ui);     /* 最小字、导航标签 */
+  --text-signature: italic 600 12px/20px var(--font-signature); /* 落款 */
+
+  /* 字距：只有大字号才收紧，正文保持默认（中文收紧会显得挤） */
+  --tracking-tight: -.02em;        /* 标题 */
+  --tracking-tighter: -.07em;      /* 大数字 */
+  --tracking-brand: -3px;          /* logo 专用，实测值 */
+
+  /* ══════════════════════════════════════════════════════════
+   * 6. 间距（4 为基数；2 只用于图标与文字之间的极小间隙）
+   * ══════════════════════════════════════════════════════════ */
+  --space-half: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ══════════════════════════════════════════════════════════
+   * 7. 圆角
+   * 原先有 12/13/14/16/20/999 六种，统一成这四档。
+   * ══════════════════════════════════════════════════════════ */
+  --radius-sm: 13px;               /* 小图、chip */
+  --radius-md: 16px;               /* 卡片、输入框 */
+  --radius-lg: 20px;               /* 大卡、顶部横幅 */
+  --radius-pill: 999px;            /* 胶囊按钮 */
+  --radius-sheet: 29px;            /* 底部弹层顶部两角：比卡片再大一档，有意的区别 */
+  --radius-full: 50%;              /* 圆形 */
+
+  /* ══════════════════════════════════════════════════════════
+   * 8. 阴影
+   * 原先 6 种（0 2px 8px / 0 4px 14px / 0 2px 10px / 0 8px 22px / 品牌光晕 / 外壳），
+   * 收敛成 4 档。卡片的阴影要"几乎看不见"——这个产品的底色很浅，
+   * 阴影一重就显得脏。
+   * ══════════════════════════════════════════════════════════ */
+  /* 阴影统一用同一个色（rgba(43,86,135,α)），只调模糊与透明度。
+   * 原来各家写法不一：0 2px 8px / 0 3px 12px / 0 4px 14px / 0 4px 16px /
+   * 0 6px 18px / 0 8px 22px，颜色也散着 #244c6a0a / #244c6a12 / #244c6a1a …
+   * 归一后只有这 4 档，按"离页面多高"选，不要再写新的。 */
+  --shadow-hairline: 0 2px 8px rgba(43, 86, 135, .04);   /* 贴地：小控件、下拉 */
+  --shadow-card: 0 2px 10px rgba(43, 86, 135, .06);      /* 卡片常态 */
+  --shadow-raised: 0 8px 22px rgba(43, 86, 135, .1);     /* 抬起：页眉、浮层 */
+  --shadow-brand: 0 8px 22px rgba(59, 136, 215, .17);    /* 主按钮光晕 */
+  --shadow-shell: 0 0 90px rgba(84, 141, 179, .1);       /* 手机外壳投影（桌面端） */
+  --shadow-scrim: 0 -12px 60px rgba(47, 91, 118, .16);   /* 弹层向上投的影 */
+
+  /* ══════════════════════════════════════════════════════════
+   * 9. 动效
+   * ══════════════════════════════════════════════════════════ */
+  --ease-out: cubic-bezier(.22, 1, .36, 1);   /* 首页页眉收拢用的曲线，全站统一 */
+  --dur-fast: .18s;
+  --dur-base: .28s;
+  --dur-slow: .34s;
+
+  /* ══════════════════════════════════════════════════════════
+   * 10. 层级
+   * ══════════════════════════════════════════════════════════ */
+  --z-below: -1;
+  --z-base: 0;
+  --z-caption: 2;                  /* 落款压在照片上 */
+  --z-header: 4;                   /* 吸顶页眉 */
+  --z-nav: 5;                      /* 底部导航 */
+  --z-overlay: 10;                 /* 弹层 */
+  --z-toast: 20;
+
+  /* ══════════════════════════════════════════════════════════
+   * 11. 控件与布局尺寸
+   * ══════════════════════════════════════════════════════════ */
+  --tap-min: 44px;                 /* 最小可点区域（无障碍下限） */
+  --control-height: 52px;          /* 输入框、下拉 */
+  --nav-height: 82px;              /* 底部导航 */
+  --nav-clear: 108px;              /* 页面底部给导航留出的空间 */
+  --icon-size: 22px;
+  --icon-size-sm: 18px;
+
+  --layout-page-pad: 20px;         /* 页面左右留白 */
+  --layout-width: 460px;           /* 桌面端内容列宽 */
+  --layout-gap: 12px;              /* 卡片之间的默认间距 */
+}
+
+/* ══════════════════════════════════════════════════════════════
+ * 兼容别名：把历史遗留的四套变量指到新令牌上
+ * ──────────────────────────────────────────────────────────────
+ * 为什么这么做：life.css / experience.css / prototype.css 里到处引用着
+ * 这些旧名字（--blue、--pro-canvas、--type-body…），逐个改调用点既慢又容易漏。
+ * 把旧名字变成别名，等于"一次接入"，而且取值仍然由令牌决定 —— 以后调品牌色
+ * 只改 tokens.css 一行，全站跟着变。
+ *
+ * 这些别名是过渡用的。新写的样式请直接用 --color-* / --text-* / --space-*，
+ * 不要用下面任何一个旧名字；等调用点清完，这一段整体删掉。
+ * ══════════════════════════════════════════════════════════════ */
+:root {
+  /* ── life.css 那套（codex 原版） ── */
+  --blue: var(--color-brand);
+  --blue-deep: var(--color-brand-deep);
+  --blue-soft: var(--color-brand-wash);
+  /* 分类色旧名 → 新令牌 */
+  --place: var(--cat-place);              --place-icon-wash: var(--cat-place-wash);    --place-surface: var(--cat-place-surface);
+  --food: var(--cat-food);                --food-icon-wash: var(--cat-food-wash);      --food-surface: var(--cat-food-surface);
+  --movie: var(--cat-movie);              --movie-icon-wash: var(--cat-movie-wash);    --movie-surface: var(--cat-movie-surface);
+  --number: var(--cat-number);            --number-icon-wash: var(--cat-number-wash);  --number-surface: var(--cat-number-surface);
+  --wish-accent: var(--cat-wish);         --wish-icon-wash: var(--cat-wish-wash);      --wish-surface: var(--cat-wish-surface);
+  --completed-ink: var(--cat-done);       --completed-surface: var(--cat-done-surface);
+  --rating-accent: var(--cat-rating);     --danger-ink: var(--cat-danger);
+  --revisit-surface: var(--color-revisit-surface);
+  --ink: var(--color-ink-2);
+  /* 注意：--muted 在 life.css 是 #6a7d92、在 experience.css 被覆盖成 #435d75，
+   * 两个文件里名字一样值不同，是历史 bug。这里统一按生效值（#435d75 = ink-3）定，
+   * 落款要 #6a7d92 的地方已改用 --color-ink-4。 */
+  --muted: var(--color-ink-3);
+  --surface: var(--color-surface);
+  --line: var(--color-line-soft);
+
+  /* ── experience.css 那套（--type-*/--space-*/--radius-*） ── */
+  --type-display: var(--text-display);
+  --type-hero: var(--text-heading);
+  --type-page: var(--text-title);
+  --type-section: var(--text-section);
+  --type-card: var(--text-card);
+  --type-body: var(--text-body);
+  --type-secondary: var(--text-secondary);
+  --type-meta: var(--text-meta);
+  --type-caption: var(--text-micro);
+
+  --space-page: var(--layout-page-pad);
+  --space-card: var(--space-3);
+  --radius-compact: var(--radius-sm);
+  --radius-card: var(--radius-md);
+  --radius-hero: var(--radius-lg);
+  --control-height-alias: var(--control-height);
+  /* life.css 里原本还有第五套刻度：--radius-md:18px / --radius-lg:23px、
+   * --touch-min:44px / --content-max:460px / --ease / --canvas:#eff7fc。
+   * 它们因为写在后面会把令牌盖掉（比如卡片圆角实际量出来是 18px 而不是 16px），
+   * 已在 life.css 删掉，旧名在这里归位到令牌。 */
+  --touch-min: var(--tap-min);
+  --content-max: var(--layout-width);
+  --ease: var(--ease-out);
+  --canvas: var(--color-canvas);
+
+  /* experience.css 末尾那套重复定义（--color-brand / --radius-lg / --shadow-fab）
+   * 本来就是第二套，直接并到令牌上，不再单独存在。 */
+  --color-brand-press: var(--color-brand-deep);
+  --color-brand-soft: var(--color-brand-wash);
+  --color-bg: var(--color-canvas);
+  --color-text-primary: var(--color-ink-1);
+  --color-text-secondary: var(--color-ink-3);
+  --color-text-muted: var(--color-ink-5);
+  --color-text-weak: #aebecc;
+  --color-divider: var(--color-line);
+  --shadow-card-soft: var(--shadow-card);
+  --shadow-fab: var(--shadow-brand);
+
+  /* ── prototype.css 那套（--pro-*） ── */
+  --pro-canvas: var(--color-canvas);
+  --pro-surface: var(--color-surface);
+  --pro-ink: var(--color-ink-1);
+  --pro-sub: var(--color-ink-5);
+  --pro-line: var(--color-line);
+  --pro-blue: var(--color-brand-bright);
+  --pro-blue-wash: var(--color-brand-wash-2);
+  --pro-star: var(--color-star);
+  --pro-heart: var(--color-heart);
+  --pro-r-lg: var(--radius-lg);
+  --pro-r-md: var(--radius-md);
+  --pro-r-sm: var(--radius-sm);
+  --pro-inset: var(--layout-page-pad);
+  --pro-shadow: var(--shadow-card);
+  --pro-shadow-up: var(--shadow-raised);
+  --pro-title: var(--text-title);
+  --pro-num: var(--text-strong);
+  --pro-tap: var(--tap-min);
+  --pro-ease: var(--ease-out);
+  /* 页眉遮罩的"全透明版底色"，必须和 --color-canvas 同色，否则渐变结尾会发灰 */
+  --pro-canvas-clear: rgba(238, 244, 253, 0);
+}

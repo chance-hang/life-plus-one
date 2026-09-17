@@ -1,0 +1,224 @@
+/* +1 Life Plus One · 全站组件统一层
+ * ─────────────────────────────────────────────────────────────
+ * 加载顺序：tokens.css → life.css → experience.css → prototype.css → components.css
+ *
+ * 职责：把「每个页面各写一套」的共用组件拉回同一套令牌。
+ * 首页已经在 prototype.css 里定型并通过验收，这里不再碰首页专属的东西；
+ * 只处理跨页面共用、但历史上各自写死数值的组件。
+ *
+ * 规则：本文件不出现任何硬编码色值与随意像素，一律引用 tokens.css。
+ * 新增组件时也照此办理 —— verify-tokens.cjs 会检查。
+ */
+
+/* ── 页面骨架 ───────────────────────────────────────────────
+ * 页面左右留白、底部给导航留的高度，全站一个值。 */
+.page-content {
+  padding-inline: var(--layout-page-pad);
+  padding-bottom: var(--nav-clear);
+}
+
+/* ── 区块标题 + 右侧「查看全部」文字按钮 ──────────────────── */
+.section-head h2 {
+  font: var(--text-section);
+  color: var(--color-ink-1);
+}
+.text-button {
+  font: var(--text-secondary);
+  color: var(--color-ink-5);
+}
+
+/* ── 统计块（数字 + 标签）───────────────────────────────────
+ * 原先「足迹」页是 22/28 配 16px 8px 内边距，「我的」页是 20/27 配 14px 4px，
+ * 同一个组件两种规格。统一到 --text-stat 一档。 */
+.stats > div,
+.stats > button,
+.number-grid > div,
+.number-grid > button {
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-2);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.stats b,
+.number-grid b {
+  display: block;
+  font: var(--text-stat);
+  color: var(--color-ink-1);
+}
+/* 4 列的格子窄，数字退到 --text-stat-sm 那一档（理由见 tokens.css）。 */
+.stats.four b {
+  font: var(--text-stat-sm);
+}
+.stats span,
+.number-grid small,
+.number-grid span {
+  display: block;
+  margin-top: var(--space-1);
+  font: var(--text-micro);
+  color: var(--color-ink-5);
+}
+
+/* ── 筛选 chip ──────────────────────────────────────────────
+ * 原先圆角 12px（不在任何一档里）、左右 14px。统一到 --radius-sm / --space-4。 */
+.chip {
+  font: var(--text-strong);
+  color: var(--color-brand-bright);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.chip.selected {
+  color: var(--color-on-dark);
+  background: var(--color-brand-bright);
+}
+
+/* ── 搜索框与下拉：同为输入控件，规格必须一致 ────────────────
+ * 原先搜索框圆角 16px、下拉 14px，两种。 */
+.search-box,
+.filter-row select,
+.field select {
+  font: var(--text-body);
+  color: var(--color-ink-2);
+  background: var(--color-brand-wash);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.search-box input {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+.search-box input:focus-visible,
+.filter-row select:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ── 时间轴年份 / 分组大标题 ──────────────────────────────── */
+.timeline-year > h2,
+.timeline-month > h2 {
+  font: var(--text-heading);
+  color: var(--color-brand-bright);
+}
+
+/* ── 按钮 ──────────────────────────────────────────────────
+ * 三档：主操作（实心胶囊）、次操作（浅底胶囊）、文字按钮。 */
+.primary {
+  font: var(--text-card);
+  color: var(--color-on-dark);
+  background: var(--color-brand-bright);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-6);
+  box-shadow: var(--shadow-brand);
+}
+.primary:active {
+  background: var(--color-brand-deep);
+}
+.pill {
+  font: var(--text-strong);
+  color: var(--color-brand-bright);
+  background: var(--color-brand-wash-2);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-3);
+}
+
+/* ── 空状态 ──────────────────────────────────────────────── */
+.empty {
+  font: var(--text-secondary);
+  color: var(--color-ink-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+.empty p {
+  margin: 0;
+  color: inherit;
+}
+
+/* ── 弹层（选择类型 / 编辑器 / 确认框）──────────────────────
+ * 顶部圆角、底色、抬起阴影与其它卡片保持同一语言。 */
+.sheet {
+  background: var(--color-surface);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  box-shadow: var(--shadow-raised);
+}
+.sheet h2,
+.form-title {
+  font: var(--text-heading);
+  color: var(--color-ink-1);
+}
+.sheet-sub,
+.form-subtitle {
+  font: var(--text-secondary);
+  color: var(--color-ink-5);
+}
+.type-card {
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.sheet-close {
+  color: var(--color-ink-1);
+}
+
+/* ── 记录卡：跨页面统一（首页那版已是这一套，这里兜住其它页）── */
+.record,
+.wish-row {
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+}
+.record h3,
+.wish-row h3 {
+  font: var(--text-card);
+  color: var(--color-ink-1);
+}
+.record p,
+.record small,
+.wish-row small {
+  font: var(--text-meta);
+  color: var(--color-ink-5);
+}
+.record > .photo,
+.wish-row .photo,
+.editor-gallery img,
+.detail-gallery img,
+.detail-gallery button {
+  border-radius: var(--radius-sm);
+}
+
+/* ── 足迹页横幅 ──────────────────────────────────────────── */
+.places-landscape,
+.collection-summary,
+.wish-banner,
+.number-hero {
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+
+/* ── 页眉里的图标按钮 ────────────────────────────────────── */
+.page-heading .icon-button {
+  color: var(--color-ink-1);
+}
+
+/* 副标题缩进：对齐左侧返回按钮的宽度（44px），不再写死 44。 */
+.page-subtitle {
+  padding-left: var(--tap-min);
+}
+@media (max-width: 380px) {
+  .page-subtitle {
+    padding-left: calc(var(--tap-min) - var(--space-half));
+  }
+}
