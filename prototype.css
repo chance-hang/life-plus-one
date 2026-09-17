@@ -213,6 +213,8 @@
 .life-banner:after {
   background: linear-gradient(180deg, rgba(23, 58, 96, .42), rgba(23, 58, 96, .18) 45%, rgba(18, 48, 84, .55));
 }
+/* 卡片文字：两种版本（照片版=收藏瞬间 / 简洁版=人生天数）共用这一套字体格式，
+ * 各版只允许覆盖颜色。改这里的字号会让两版失衡，verify-home-cards.cjs 会比对两版字号。 */
 .banner-copy { position: relative; z-index: 1; color: #fff; }
 .banner-copy > span { font: 500 13px/20px var(--font-ui); color: rgba(255, 255, 255, .88); }
 .banner-copy > div {
@@ -257,11 +259,12 @@
 .life-banner.style-classic { padding: 22px 20px; background: var(--blue-soft); }
 .life-banner.style-classic:before { background-position: center 61%; }
 .life-banner.style-classic:after { background: linear-gradient(90deg, var(--hero-wash-start), var(--hero-wash-mid) 62%, var(--hero-wash-end)); }
+/* 简洁版（人生天数卡）只换颜色，不换字号 —— 与照片版保持同一套字体格式 */
 .life-banner.style-classic .banner-copy { color: var(--pro-sub); }
-.life-banner.style-classic .banner-copy > span { font: 500 12px/18px var(--font-ui); color: var(--pro-sub); }
-.life-banner.style-classic .banner-copy > div { margin: 7px 0 10px; font: 500 12px/18px var(--font-ui); color: var(--pro-sub); }
-.life-banner.style-classic .banner-copy strong { font: 600 42px/50px var(--font-ui); letter-spacing: -.01em; color: var(--blue-deep); }
-.life-banner.style-classic .banner-copy p { font: 500 11px/17px var(--font-ui); color: var(--pro-sub); }
+.life-banner.style-classic .banner-copy > span { color: var(--pro-sub); }
+.life-banner.style-classic .banner-copy > div { color: var(--pro-sub); }
+.life-banner.style-classic .banner-copy strong { color: var(--blue-deep); }
+.life-banner.style-classic .banner-copy p { color: var(--pro-sub); }
 .life-banner.style-classic .banner-caption { color: #7d95ad; }
 
 /* ── 六宫格：彩色圆底图标 + codex 的说明文案 ────────── */

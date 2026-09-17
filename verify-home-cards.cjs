@@ -1,4 +1,6 @@
-/* 首页自查：无边框页眉品牌块 + 卡片两种格式（照片版 / 简洁版）
+/* 首页自查：无边框页眉品牌块 + 卡片两种格式
+ * 照片版 = 收藏瞬间卡（你已经收藏了 N 个瞬间），简洁版 = 人生天数卡（你已经生活了 N 天 + 落款）
+ * 两版内容刻意不同，但字体格式必须逐项一致
  * + 右上角双箭头切换（横向滑动、不整页刷新）+ 问候行常驻 + 六宫格文案
  * 用法：先启动 serve.cjs，再 node verify-home-cards.cjs
  * 输出：verification/home-photo.png、home-classic.png、home-swap-mid.png、home-375-{photo,classic}.png */
@@ -9,6 +11,12 @@ const url = process.env.REVIEW_URL || 'http://127.0.0.1:4186/?view=home';
 
 const read = () => {
   const q = s => document.querySelector(s);
+  // 字体格式指纹：字号/行高/字重/字形/字体族，两版必须逐项一致
+  const typeOf = el => {
+    if (!el) return null;
+    const cs = getComputedStyle(el);
+    return `${cs.fontSize} | ${cs.lineHeight} | ${cs.fontWeight} | ${cs.fontStyle} | ${cs.fontFamily.split(',')[0]}`;
+  };
   const panel = q('.phone').getBoundingClientRect();
   const mark = q('.phone .app-header .brand>b');
   const brandEl = q('.phone .app-header .brand');
@@ -49,7 +57,16 @@ const read = () => {
       captionText: caption ? caption.textContent.trim() : null,
       captionShown: caption ? getComputedStyle(caption).display !== 'none' : false,
       badgeShown: badge ? getComputedStyle(badge).display !== 'none' : false,
+      // 两版共有的四段文字，字体格式必须一模一样（落款只有天数卡有，单独看）
+      type: {
+        label: typeOf(hero.querySelector('.banner-copy > span')),
+        strong: typeOf(strong),
+        unit: typeOf(hero.querySelector('.banner-unit')),
+        note: typeOf(hero.querySelector('.banner-copy p')),
+      },
+      captionType: typeOf(caption),
     },
+    records: state.records.length,
     swap: {
       // 卡片右上角入口：位置贴右上角、双箭头图标、44px 触控区
       exists: Boolean(swap),
@@ -128,15 +145,12 @@ const probe = () => {
     assert.equal(photo.track.style, 'photo');
     assert.equal(photo.style, 'photo');
     assert(!photo.hero.classic, '首次进入应为照片版卡片');
-    // —— 卡片内容对齐 codex 原版：你已经生活了 N 天 + 落款，不再出现「收藏了多少个瞬间」——
-    assert.equal(photo.hero.label, '你已经生活了', `卡片首行应为人生天数口径，实际 ${photo.hero.label}`);
-    assert.equal(photo.hero.unit, '天', `卡片单位应为「天」，实际 ${photo.hero.unit}`);
-    assert.equal(photo.hero.note, '仍有很多值得 +1 的瞬间，在路上。', `卡片结语不符，实际 ${photo.hero.note}`);
-    assert(!/个瞬间/.test(`${photo.hero.label}${photo.hero.unit}${photo.hero.note}`), '卡片不应再退回「收藏了多少个瞬间」的文案');
-    assert(/^\d{1,3}(,\d{3})+$/.test(photo.hero.strong), `卡片大数字应是带千分位的人生天数，实际 ${photo.hero.strong}`);
-    assert(Number(photo.hero.strong.replace(/,/g, '')) > 10000, `示例数据应落在人生天数上，实际 ${photo.hero.strong}`);
-    assert(photo.hero.captionShown && photo.hero.captionText === 'A More Colorful Life', `落款应显示，实际 ${JSON.stringify([photo.hero.captionShown, photo.hero.captionText])}`);
-    assert(photo.hero.badgeShown && photo.hero.badgeText === '+1', `+1 徽标应显示，实际 ${JSON.stringify([photo.hero.badgeShown, photo.hero.badgeText])}`);
+    // —— 照片版 = 收藏瞬间卡：讲「收藏了多少个瞬间」——
+    assert.equal(photo.hero.label, '你已经收藏了', `照片版首行应为收藏口径，实际 ${photo.hero.label}`);
+    assert.equal(photo.hero.unit, '个瞬间', `照片版单位应为「个瞬间」，实际 ${photo.hero.unit}`);
+    assert.equal(photo.hero.note, '继续出发，去体验更多可能。', `照片版结语不符，实际 ${photo.hero.note}`);
+    assert.equal(photo.hero.strong, photo.records.toLocaleString(), `照片版大数字应是收藏条数，实际 ${photo.hero.strong}`);
+    assert(!photo.hero.badgeShown && !photo.hero.captionShown, '+1 徽标与落款属于人生天数卡，照片版不带');
 
     // 六宫格沿用 codex 的说明文案
     const expectModules = ['人生清单|3 件小小心愿', '去过的地方|3 座城市的故事', '第一次|2 次勇敢尝试', '美食|1 份味觉记忆', '电影|0 场光影之旅', '人生数字|关于我的小小宇宙'];
@@ -157,12 +171,20 @@ const probe = () => {
     assert.equal(classic.swap.label, '切换为照片版卡片', `切换后入口文案应更新，实际 ${classic.swap.label}`);
     assert.equal(classic.hero.strongColor, 'rgb(36, 108, 204)', `简洁版数字应为深蓝，实际 ${classic.hero.strongColor}`);
     assert.equal(classic.hero.height, photo.hero.height, `两种版本卡片高度应一致（滑轨统一高度）：${photo.hero.height} vs ${classic.hero.height}`);
-    // 两版内容完全一致，差别只该在视觉（照片底 / 浅色底）
-    assert.deepEqual(
-      ['label', 'unit', 'strong', 'note', 'badgeText', 'captionText'].map(k => classic.hero[k]),
-      ['label', 'unit', 'strong', 'note', 'badgeText', 'captionText'].map(k => photo.hero[k]),
-      '两种版本卡片的内容应完全一致（只换视觉，不换文案）',
-    );
+    // —— 简洁版 = 人生天数卡：讲「你已经生活了 N 天」（codex 原版口径 + 落款 + +1 徽标）——
+    assert.equal(classic.hero.label, '你已经生活了', `天数卡首行应为人生天数口径，实际 ${classic.hero.label}`);
+    assert.equal(classic.hero.unit, '天', `天数卡单位应为「天」，实际 ${classic.hero.unit}`);
+    assert.equal(classic.hero.note, '仍有很多值得 +1 的瞬间，在路上。', `天数卡结语不符，实际 ${classic.hero.note}`);
+    assert(/^\d{1,3}(,\d{3})+$/.test(classic.hero.strong), `天数卡大数字应是带千分位的人生天数，实际 ${classic.hero.strong}`);
+    assert(Number(classic.hero.strong.replace(/,/g, '')) > 10000, `示例数据应落在人生天数上，实际 ${classic.hero.strong}`);
+    assert(classic.hero.badgeShown && classic.hero.badgeText === '+1', `天数卡应带 +1 徽标，实际 ${JSON.stringify([classic.hero.badgeShown, classic.hero.badgeText])}`);
+    assert(classic.hero.captionShown && classic.hero.captionText === 'A More Colorful Life', `天数卡应带落款，实际 ${JSON.stringify([classic.hero.captionShown, classic.hero.captionText])}`);
+    // 两版内容刻意不同：一张数瞬间、一张数天数
+    assert.notEqual(classic.hero.unit, photo.hero.unit, `两版应是不同口径的内容，实际都是 ${classic.hero.unit}`);
+    assert.notEqual(classic.hero.strong, photo.hero.strong, '两版的大数字不应相同（瞬间数 vs 人生天数）');
+    // 但字体格式必须逐项一致：字号 / 行高 / 字重 / 字形 / 字体族
+    assert.deepEqual(classic.hero.type, photo.hero.type,
+      `两版字体格式必须完全一致：照片版 ${JSON.stringify(photo.hero.type)} vs 简洁版 ${JSON.stringify(classic.hero.type)}`);
 
     // —— 横向滑动：动画中轨道里应同时存在两张卡，且轨道发生横向位移 ——
     const animated = await browser.newContext({ reducedMotion: 'no-preference', viewport: { width: 1536, height: 703 } });
@@ -226,6 +248,9 @@ const probe = () => {
     });
     await page3.reload();
     await page3.locator('.modules').waitFor();
+    // 看人生天数卡（默认是照片版瞬间卡）
+    await page3.evaluate(() => setHomeStyle('classic'));
+    await page3.waitForTimeout(120);
     const migrated = await page3.evaluate(read);
     assert.equal(migrated.hero.label, '你已经生活了', `老示例数据应自动补上生日，实际 ${migrated.hero.label}`);
     assert.equal(migrated.hero.unit, '天', `迁移后单位应为「天」，实际 ${migrated.hero.unit}`);

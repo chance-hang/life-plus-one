@@ -68,21 +68,21 @@ const HOME_STYLE_KEY = 'life-plus-one-review-home-style';
 const readHomeStyle = () => { try { return localStorage.getItem(HOME_STYLE_KEY)==='classic'?'classic':'photo'; } catch { return 'photo'; } };
 let homeStyle = readHomeStyle();
 const swapLabel = style => style==='classic' ? '切换为照片版卡片' : '切换为简洁版卡片';
-/* 卡片文案：两种版本共用同一份内容，差别只在视觉。
- * 数据源是「你已经生活了 N 天」（codex 原版口径），只有连生日都没有时才退回收藏数量。 */
-function bannerCopy() {
- const days = state.birthday ? Math.floor((Date.parse(today())-Date.parse(state.birthday))/86400000)+1 : null;
- return {
-  label: days ? '你已经生活了' : '你已经收藏了',
-  count: (days || state.records.length).toLocaleString(),
-  unit: days ? '天' : '个瞬间',
-  note: days ? '仍有很多值得 +1 的瞬间，在路上。' : '继续出发，去体验更多可能。',
- };
+/* 卡片文案：两版各说一件事，故意不同 ——
+ * 照片版讲「收藏了多少个瞬间」，简洁版讲「你已经生活了 N 天」（codex 原版口径）。
+ * 只有文案不同，字体格式两版完全一致（见 prototype.css 的 .banner-copy 一组规则）。 */
+function bannerCopy(style) {
+ if (style === 'classic' && state.birthday) {
+  const days = Math.floor((Date.parse(today())-Date.parse(state.birthday))/86400000)+1;
+  return { label:'你已经生活了', count:days.toLocaleString(), unit:'天', note:'仍有很多值得 +1 的瞬间，在路上。', badge:true, caption:true };
+ }
+ // 照片版固定讲收藏数量；简洁版在没填生日时也退回这套，避免出现一片空白
+ return { label:'你已经收藏了', count:state.records.length.toLocaleString(), unit:'个瞬间', note:'继续出发，去体验更多可能。', badge:false, caption:false };
 }
 /* 一张卡（两种版本共用一个渲染函数，切换时只换这张卡，不动整页） */
 function bannerCard(style) {
- const t = bannerCopy();
- const body = `<div class="banner-copy"><span>${t.label}</span><div><strong>${t.count}</strong><span class="banner-unit">${t.unit}</span><em>+1</em></div><p>${t.note}</p></div><span class="banner-caption">A More Colorful Life</span>`;
+ const t = bannerCopy(style);
+ const body = `<div class="banner-copy"><span>${t.label}</span><div><strong>${t.count}</strong><span class="banner-unit">${t.unit}</span>${t.badge?'<em>+1</em>':''}</div><p>${t.note}</p></div>${t.caption?'<span class="banner-caption">A More Colorful Life</span>':''}`;
  return `<button class="life-banner${style==='classic'?' style-classic':''}" data-go="numbers">${body}</button>`;
 }
 const bannerSlide = style => `<div class="banner-slide">${bannerCard(style)}</div>`;
