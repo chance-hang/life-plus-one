@@ -12,13 +12,19 @@
 
 | 脚本 | 覆盖范围 |
 | --- | --- |
+| `node verify.cjs` | 端到端流程：封面/首页 4 个窄视口、六个入口、类型选择器与评分条件字段、心愿完成→记录→愿望状态联动、localStorage 持久化、第一次合集聚合、搜索命中、HTML 转义、删除回退、减少动效降级、零运行时报错 |
+| `node verify-ui.cjs` | 54 组「9 路由 × 6 视口」无横向溢出 + 触控目标 ≥ 43.5px；底部内容不被导航遮挡；减少动效降级；Esc 关闭浮层 |
 | `node verify-experience.cjs` | 77 组路由/视口检查 + 5 组短视口编辑器检查、CRUD、草稿守卫、存储失败重试、Prod 隔离 |
 | `node verify-header.cjs` | 页眉契约：375/460/1440 三档的静止与滚动两态（透明容器、同底色圆角胶囊、等高、触控区、贴顶位置、收拢幅度） |
 | `python verify-header-pixels.py` | 页眉像素复核：滚动后内容不得透过页眉（含关掉遮罩的对照组） |
-| `node verify-home-cards.cjs` | 首页品牌胶囊 + 两种卡片格式 + 切换持久化 + 六宫格文案 |
+| `node verify-home-cards.cjs` | 首页 hero：品牌胶囊 + 两种卡片格式 + 切换持久化 + 六宫格文案 + 文字到卡片边缘的距离与字体一致性（含旋转元素的真实可见距离） |
 | `node verify-desktop-shell.cjs` | 桌面预览壳面板比例与页眉几何 |
 
-`verify.cjs`、`verify-ui.cjs` 引用的是已不存在的旧表单元素（`#record-form`、`#note-count`、`#photo-file`），在 experience.js 接管表单后即未同步，属于历史遗留，当前以 `verify-experience.cjs` 为准。
+所有脚本默认打 `http://127.0.0.1:4186`，可用 `REVIEW_URL` 覆盖（例如 `REVIEW_URL=http://127.0.0.1:4173 node verify-ui.cjs`）。
+
+> `verify.cjs` 与 `verify-ui.cjs` 曾长期处于红灯：它们断言的是 experience.js 接管表单之前的旧 DOM
+> （`#record-form`、`#note-count`、`#photo-file`、`#photo-preview`、`[data-scene]`）。2026-09-17 已按当前 DOM 重写，
+> `verify-ui.cjs` 中与 `verify-experience.cjs` 重复的旧表单流程不再复查，只保留它独有的布局/触控检查。
 
 ### 原型对齐（2026-09-16）
 

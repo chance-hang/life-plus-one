@@ -599,6 +599,12 @@
 .sheet { border-radius: 26px 26px 0 0; box-shadow: var(--pro-shadow-up); }
 .form-title { font: 700 26px/34px var(--font-ui); color: var(--pro-ink); }
 .form-subtitle { color: var(--pro-sub); }
+/* 兜底：HTML 的 hidden 属性必须真的藏起来。
+ * 浏览器自带的 [hidden]{display:none} 优先级极低，本文件把 .field 改成了 display:flex 之后，
+ * 「隐藏字段」就藏不住了 —— 选「第一次」「去过的地方」这些不评分的分类时，评分下拉照样显示在表单里。
+ * 有些不断 DOM 的分支切换靠的就是 hidden，所以这里补一条最高优先级的通用规则。 */
+[hidden] { display: none !important; }
+
 .field {
   display: flex;
   align-items: center;

@@ -247,7 +247,61 @@
   字号 / 行高 / 字体族必须等于照片版结语的三个值（允许斜体）；375 视口下同样再断言一遍。
 - 以后谁再给某段文字单独写 `padding` / `margin` / 字体 / 旋转，这几条会立刻红。
 
-> 备注：`verify.cjs`（codex 原始端到端脚本）目前是红灯，停在第 31 行等待 `#record-form button[type=submit]`。
-> 该 id 在当前代码库里已不存在（`grep -rn "record-form" --include=*.js --include=*.html` 无结果），
-> 属历史遗留脚本对旧 DOM 的断言，与本轮改动无关。功能回归以 `verify-home-cards.cjs` /
-> `verify-experience.cjs` / `verify-header.cjs` / `verify-desktop-shell.cjs` 为准。
+> 备注：`verify.cjs` 原是红灯，停在第 31 行等待 `#record-form button[type=submit]` —— 该 id 在
+> experience.js 接管表单后已不存在。**2026-09-17 已按当前 DOM 重写并通过**（见下节）。
+
+## 顺带：把两套长期红灯的自查脚本救回来 + 修掉一个真 bug
+
+### 1. `verify.cjs`（端到端）—— 从红灯到绿灯
+
+原脚本停在等待 `#record-form`。顺着往下查，表单渲染早就由 `experience.js` 接管，
+而且**产品行为也有两处演进**，脚本只是没跟上：
+
+| 项 | 旧脚本假设 | 现在的实现 |
+| --- | --- | --- |
+| 表单 id | `#record-form` | `#experience-record`（experience.js L44） |
+| 保存后去哪 | 直接回首页 | 停在这条记录的详情页 |
+| 删除确认按钮 | `[data-confirm-delete]` | `[data-ex="delete-record"]`（`confirmAction`） |
+| 验收端口 | 硬编码 `4173` | 读 `REVIEW_URL`，默认 `4186` |
+
+另外两处是脚本自身的缺陷：`p.reload()` 时 URL 上还带着 `?view=home`，
+会直接落回首页面看不到封面，永远等不到 `.enter-button` —— 改成走一遍完整的「封面进入」流程；
+六宫格入口逐个点开后补了显式等待，不再靠隐式超时兜运气。
+
+> 顺带发现「僵尸代码」：`life.js` L246–247 的 `data-delete` / `data-confirm-delete` 旧分支
+> 已被 experience.js L128 的 `stopImmediatePropagation` 挡住，永远走不到。**未删除**，留作后续清理确认。
+
+### 2. `verify-ui.cjs` —— 收敛为「布局 + 触控」专项
+
+前半段（9 路由 × 6 视口 = 54 组，无横向溢出 + 触控目标不小于 43.5px）一直是绿灯，
+而且是全套里**唯一系统检查触控目标**的一环，保留。
+后半段依赖的 `#note-count` / `#photo-file` / `#photo-preview` / `[data-scene]` 已全部被替换，
+且相同覆盖在 `verify-experience.cjs` 的 77 组里已有，删去不再重复复查。
+补上了它自己原有的三项独有检查：底部内容不被导航遮挡、减少动效降级、Esc 关闭浮层。
+
+### 3. 修掉一个真 bug：HTML `hidden` 属性失效
+
+写上面第 4 组断言（「第一次」不评分，评分字段应隐藏）时暴露出来的：
+
+```
+prototype.css 的 `.field { display: flex }` 覆盖了浏览器自带的 `[hidden] { display: none }`
+→ experience.js L54 写的 `hidden` 属性名存实亡
+→ 选「第一次」「去过的地方」这些**不评分**的分类时，评分下拉照样显示在表单里
+```
+
+实测：初始 `hidden=true` 但 `display: flex`、盒子高 72px；切到「美食」去掉 hidden 后反而看不出区别
+—— 也就是说这个字段一直是常驻显示的。
+
+修复：在 `prototype.css` 的 `.field` 之前补一条最高优先级的通用兜底：
+
+```css
+[hidden] { display: none !important; }
+```
+
+已核查全仓 `hidden` 的其它用法都是显隐切换或 `aria-hidden`（不匹配 `[hidden]`），无副作用。
+
+### 收尾状态
+
+七套自查首次全绿：`verify.cjs` / `verify-ui.cjs` / `verify-home-cards.cjs` /
+`verify-header.cjs` / `verify-experience.cjs`(77 组) / `verify-desktop-shell.cjs` /
+`verify-header-pixels.py`。
