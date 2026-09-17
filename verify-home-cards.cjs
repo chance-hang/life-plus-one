@@ -94,11 +94,12 @@ const read = () => {
       badgeText: badge ? badge.textContent.trim() : null,
       captionText: caption ? caption.textContent.trim() : null,
       captionShown: caption ? getComputedStyle(caption).display !== 'none' : false,
-      // 落款压在照片上，颜色必须是「实色 + 深色光晕」，不能是半透明（半透明会把亮度让给照片）
+      // 落款颜色/光晕按各自卡片的底色走（照片卡深蓝水 -> 浅字深晕；天数卡亮水面 -> 深字浅微光）
       captionColor: caption ? getComputedStyle(caption).color : null,
       captionShadow: caption ? getComputedStyle(caption).textShadow : null,
+      captionFont: caption ? getComputedStyle(caption).font : null,
       badgeShown: badge ? getComputedStyle(badge).display !== 'none' : false,
-      // 两版共有的四段文字，字体格式必须一模一样（落款只有天数卡有，单独看）
+      // 两版共有的四段文字，字体格式必须一模一样（落款是另一套签名体，单独看）
       type: {
         label: typeOf(hero.querySelector('.banner-copy > span')),
         strong: typeOf(strong),
@@ -106,7 +107,8 @@ const read = () => {
         note: typeOf(hero.querySelector('.banner-copy p')),
       },
       captionType: typeOf(caption),
-      // 落款允许斜体，但字号/行高/字体族必须和正文结语同一套（原来 Georgia serif 是差异来源）
+      // 落款是 codex 的手写签名体（Georgia 衬线斜体），与正文的无衬线不是同一套，
+      // 所以只要求「两版之间」逐项一致，不再和结语对齐。
       captionMetrics: caption ? `${metricsOf(caption)} | ${getComputedStyle(caption).fontFamily.split(',')[0]}` : null,
       // 文字到卡片四边的距离：两版、每个元素都要落在同一套内边距上
       geo: {
@@ -311,13 +313,15 @@ const clashRead = () => {
     assert(Number(classic.hero.strong.replace(/,/g, '')) > 10000, `示例数据应落在人生天数上，实际 ${classic.hero.strong}`);
     assert(classic.hero.badgeShown && classic.hero.badgeText === '+1', `天数卡应带 +1 徽标，实际 ${JSON.stringify([classic.hero.badgeShown, classic.hero.badgeText])}`);
     assert(classic.hero.captionShown && classic.hero.captionText === 'A More Colorful Life', `天数卡应带落款，实际 ${JSON.stringify([classic.hero.captionShown, classic.hero.captionText])}`);
-    // 落款作为「卡片署名」，两版的位置 / 字体 / 颜色 / 光晕必须逐项一致：
-    // 它不跟文案走，也不跟卡片底色走（两版都压在照片上）
+    // 落款作为「卡片署名」，两版的字体与位置必须逐项一致；
+    // 但颜色反过来 —— 它要跟「各自卡片的正文色度」走，这是 codex 原本的做法
+    // （照片卡正文白、天数卡正文灰蓝）。实测两张卡右下角的底色差了 80 个亮度点
+    // （照片卡均值 118 / 天数卡均值 199），同一个颜色不可能两边都看得清，见 prototype.css。
     assert.deepEqual(classic.hero.captionSeen, photo.hero.captionSeen,
       `两版落款位置必须一致：瞬间卡 ${JSON.stringify(photo.hero.captionSeen)} vs 天数卡 ${JSON.stringify(classic.hero.captionSeen)}`);
-    assert.equal(classic.hero.captionColor, photo.hero.captionColor, `两版落款颜色必须一致：${photo.hero.captionColor} vs ${classic.hero.captionColor}`);
-    assert.equal(classic.hero.captionShadow, photo.hero.captionShadow, `两版落款光晕必须一致：${photo.hero.captionShadow} vs ${classic.hero.captionShadow}`);
     assert.equal(classic.hero.captionMetrics, photo.hero.captionMetrics, `两版落款字体必须一致：${photo.hero.captionMetrics} vs ${classic.hero.captionMetrics}`);
+    assert.notEqual(classic.hero.captionColor, photo.hero.captionColor,
+      `两版落款颜色必须按卡片底色分开：底色差 80 个亮度点，同色必然有一版看不清（实际都是 ${photo.hero.captionColor}）`);
     // 两版内容刻意不同：一张数瞬间、一张数天数
     assert.notEqual(classic.hero.unit, photo.hero.unit, `两版应是不同口径的内容，实际都是 ${classic.hero.unit}`);
     assert.notEqual(classic.hero.strong, photo.hero.strong, '两版的大数字不应相同（瞬间数 vs 人生天数）');
@@ -349,7 +353,7 @@ const clashRead = () => {
     }
     // 结语要不要给落款让道，由卡片宽度决定（@container 量的是 .banner-wrap 的外形宽度）：
     // 卡宽 380（桌面面板）时结语墨迹离落款还有余量，不让；再窄就必须让，否则会压到落款身上。
-    const LANE = 134;
+    const LANE = 136;
     const laneOn = photo.hero.notePad !== '0px';
     assert.equal(laneOn, photo.hero.width <= 379,
       `「要不要给落款让道」应由卡片宽度决定（卡宽 ${photo.hero.width}，让道=${laneOn}）`);
@@ -359,29 +363,45 @@ const clashRead = () => {
     // 而另一张卡的结语没折行 —— 来回切换时数字会上下跳。height:20px 把它钉死。
     assert.equal(photo.hero.copyHeight, classic.hero.copyHeight,
       `两版正文块高度必须一致（结语折行不得撑高它）：${photo.hero.copyHeight} vs ${classic.hero.copyHeight}`);
-    // 落款：两版都固定在右下角。它是斜的，所以要按「旋转后看得见的那块」算距离：
-    // 右端必须和内边距一样是 20px；左端因倾斜会下沉，下沉量（落款宽度×sin7°≈15.7px）
-    // 已经在 CSS 里补掉了，所以旋转后整块的最低点同样落在 20px 线上。
-    // 只量未旋转的盒子会漏掉这 15.7px —— 那正是「看着比正文更贴边」的来源。
+    // 落款：两版都固定在右下角。它是斜的，所以要按「旋转后看得见的那块」算距离。
+    // 右端距卡片右仍是内边距 20px；但底边不再是内边距 ——
+    // 用户要求回到 codex 的位置再「下沉一点」，所以底部用 codex 原版那个 15px。
+    // 左端因 -7° 倾斜会下沉「墨迹宽×sin7°」（Georgia 13px 下 138.1×sin7°≈16.8px），
+    // 已经在 CSS 里补进 bottom，所以旋转后整块的最低点同样落在 15px 线上。
+    const CAP_BOTTOM = 15;
     for (const [name, card] of [['瞬间卡', photo], ['天数卡', classic]]) {
       assert.equal(card.hero.captionSeen.right, inset, `${name}落款右端距卡片右应为 ${inset}px，实际 ${card.hero.captionSeen.right}`);
-      assert(Math.abs(card.hero.captionSeen.bottom - inset) <= 0.5,
-        `${name}落款（倾斜后）最低点距卡片底应为 ${inset}px，实际 ${card.hero.captionSeen.bottom}`);
+      assert(Math.abs(card.hero.captionSeen.bottom - CAP_BOTTOM) <= 0.5,
+        `${name}落款（倾斜后）最低点距卡片底应为 ${CAP_BOTTOM}px，实际 ${card.hero.captionSeen.bottom}`);
       assert.equal(card.hero.geo.caption.right, inset, `${name}落款盒子右边距应为 ${inset}px，实际 ${card.hero.geo.caption.right}`);
     }
-    // 落款允许斜体，但字号/行高/字体族要和结语同一套（原来 Georgia, serif 是差异来源）
-    const noteParts = photo.hero.type.note.split(' | ');
-    const expectCaptionMetrics = `${noteParts[0]} | ${noteParts[1]} | ${noteParts[4]}`;
+    // 落款字体：回到 codex 原本那套手写签名体（Georgia 衬线斜体 600），和正文的无衬线不是同一套。
+    const CAP_FONT = '12px | 20px | Georgia';
     for (const [name, card] of [['瞬间卡', photo], ['天数卡', classic]]) {
-      assert.equal(card.hero.captionMetrics, expectCaptionMetrics,
-        `${name}落款的字号/行高/字体族应与结语一致：期望 ${expectCaptionMetrics}，实际 ${card.hero.captionMetrics}`);
-      // 落款不能用纯白：纯白落在天数卡上就是整张卡唯一的白（那张卡的正文是灰蓝 --pro-sub、
-      // 大数字是深蓝 --blue-deep），用户反馈「太亮、和氛围格格不入」。
-      // 取卡片蓝提亮后的中间色：两张卡都像卡片自己人，压在照片上也还压得住。
-      // 深浅有据：再浅 = 回到「太亮」，再深一点点天数卡的亮水面上就压不住了（见 prototype.css 注释）。
-      assert.equal(card.hero.captionColor, 'rgba(198, 220, 245, 0.92)',
-        `${name}落款应为浅蓝 .92（不用纯白，避免在天数卡上抢眼），实际 ${card.hero.captionColor}`);
-      assert((card.hero.captionShadow.match(/rgba\(/g) || []).length >= 2, `${name}落款应有≥2 层深色光晕，实际 ${card.hero.captionShadow}`);
+      assert.equal(card.hero.captionMetrics, CAP_FONT,
+        `${name}落款应为 codex 的 Georgia 衬线斜体 13px：期望 ${CAP_FONT}，实际 ${card.hero.captionMetrics}`);
+      assert(/italic/.test(card.hero.captionFont) && /600/.test(card.hero.captionFont),
+        `${name}落款应是 600 字重的斜体，实际 ${card.hero.captionFont}`);
+    }
+    // 落款颜色按卡片底色分两版（理由见 prototype.css 的注释与实测）：
+    // 照片卡是深蓝水（均值 118），必须浅色；天数卡是亮水面（均值 199），用 codex 的 --muted。
+    // 光晕方向也必须跟字相反：浅字配深晕，深字只能配一圈极淡的浅色微光。
+    const capStyles = {
+      '瞬间卡': { color: 'rgba(255, 255, 255, 0.88)', shadowLayers: 3, shadowTone: 'dark' },
+      '天数卡': { color: 'rgb(106, 125, 146)', shadowLayers: 1, shadowTone: 'light' },
+    };
+    for (const [name, card] of [['瞬间卡', photo], ['天数卡', classic]]) {
+      const want = capStyles[name];
+      assert.equal(card.hero.captionColor, want.color, `${name}落款色应为 ${want.color}，实际 ${card.hero.captionColor}`);
+      assert.equal((card.hero.captionShadow.match(/rgba\(/g) || []).length, want.shadowLayers,
+        `${name}落款光晕应为 ${want.shadowLayers} 层，实际 ${card.hero.captionShadow}`);
+      if (want.shadowTone === 'light') {
+        assert(/rgba\(255, 255, 255/.test(card.hero.captionShadow),
+          `${name}落款是深色字，光晕必须是浅色的（深晕会把亮底压暗、反而逼近字色），实际 ${card.hero.captionShadow}`);
+      } else {
+        assert(!/rgba\(255, 255, 255/.test(card.hero.captionShadow),
+          `${name}落款是浅色字，光晕必须是深色的，实际 ${card.hero.captionShadow}`);
+      }
     }
 
     // —— 横向滑动：动画中轨道里应同时存在两张卡，且轨道发生横向位移 ——
@@ -435,7 +455,8 @@ const clashRead = () => {
     assert(mobile.swap.exists && mobile.swap.insideCard, '手机视口下切换按钮应仍在卡片右上角');
     // 手机视口下卡片变窄，正文与落款仍要落在同一套内边距上
     assert.equal(mobile.hero.captionSeen.right, 20, `375 视口下落款右端距卡片右应为 20px，实际 ${mobile.hero.captionSeen.right}`);
-    assert(Math.abs(mobile.hero.captionSeen.bottom - 20) <= 0.5, `375 视口下落款最低点距卡片底应为 20px，实际 ${mobile.hero.captionSeen.bottom}`);
+    assert(Math.abs(mobile.hero.captionSeen.bottom - CAP_BOTTOM) <= 0.5,
+      `375 视口下落款最低点距卡片底应为 ${CAP_BOTTOM}px，实际 ${mobile.hero.captionSeen.bottom}`);
     assert.equal(mobile.hero.geo.copy.left, 20, `375 视口下正文左边距应为 20px，实际 ${mobile.hero.geo.copy.left}`);
     // 窄卡下结语要给落款让道，但正文块高度不能被折行撑高（否则大数字会跳）
     assert.equal(mobile.hero.notePad, `${LANE}px`, `375 视口下结语应给落款让出 ${LANE}px，实际 ${mobile.hero.notePad}`);
@@ -526,9 +547,11 @@ const clashRead = () => {
     await pixelCtx.close();
     fs.writeFileSync('verification/caption-metrics.json', JSON.stringify(capMetrics, null, 2));
     assert.deepEqual(capMetrics.classic.quad, capMetrics.photo.quad, '两版落款在卡片里的四边形必须完全一致');
-    assert.equal(capMetrics.classic.color, capMetrics.photo.color, '两版落款颜色必须一致');
-    assert.equal(capMetrics.classic.textShadow, capMetrics.photo.textShadow, '两版落款光晕必须一致');
+    assert.equal(capMetrics.classic.font, capMetrics.photo.font, '两版落款字体必须一致');
     assert.equal(capMetrics.classic.zIndex, capMetrics.photo.zIndex, '两版落款的层级必须一致');
+    // 颜色/光晕刻意不同（各按卡片底色），所以这里反过来断言「不能相同」
+    assert.notEqual(capMetrics.classic.color, capMetrics.photo.color, '两版落款颜色必须按卡片底色分开');
+    assert.notEqual(capMetrics.classic.textShadow, capMetrics.photo.textShadow, '两版落款光晕方向必须按字色相反');
 
     if (errors.length) throw new Error(`script errors: ${errors.join(' | ')}`);
     console.log('照片版  ', JSON.stringify(photo.hero), JSON.stringify(photo.brand.block), JSON.stringify(photo.swap));
